@@ -193,37 +193,65 @@ The Office A commands are used on switches DSW-A1 and DSW-A2, while the Office B
 <br /> 
 <br /> 
 
-Step 8: Configure Wazuh
-<br/>
+Step 4: Configure one of each office’s Distribution switches as a VTPv2 server. Use the domain name JeremysITLab. Verify that other switches join the domain. Configure all Access switches as VTP clients.
+Distribution Layer Switches:
+  ```
+vtp domain JeremysITLab
+vtp version 2
+```
 <p align="center">
-<img src="https://i.imgur.com/Zt5xbSE.png" height="80%" width="80%" alt="Config Wazuh"/>
+<img src="https://i.imgur.com/NQj2kwv.png" height="80%" width="80%" alt="VTP Server"/>
 </p><br />
-I edited the ossec.conf file to ingest Sysmon logs. I then ran Mimkatz on the VM to generate security event logs
-<br/>
+<align="left"> The default VLAN Trunking Protocol (VTP) is a Cisco proprietary protocol used to manage VLAN configurations. VTP is enabled by default. Switches are in VTP server mode by default, which allows for the creation, modification, and deletion of VLANs within the VTP domain. The 'vtp domain JeremysITLab' command creates or joins other switches on the network into a group or domain to share VTP information. The 'vtp version 2' command ensures each switch utilizes the same version of VTP. These commands should be repeated on the distribution layer switches: DSW-A1, DSW-A2, DSW-B1, and DSW-B2.
 <br />
+Access Layer Switches:
+
+  ```
+vtp mode client
+vtp domain JeremysITLab
+vtp version 2
+```
 <p align="center">
-<img src="https://i.imgur.com/1LyLUHR.png" height="80%" width="80%" alt="ossec file"/>
+<img src="https://i.imgur.com/Ltl2m4s.png" height="80%" width="80%" alt="VTP Client"/>
 </p><br />
-I edited the /var/ossec/etc/ossec.conf file on the server to archive and display .json logs. Then restarted Wazuh.
-<br/>
+<align="left"> The command 'vtp mode client' changes the VTP permissions for the switch. VTP client switches receive VLAN information from VTP servers and apply it to their configuration. They cannot create, modify, or delete VLANs. The command 'vtp domain JeremysITLab' joins the switch to a VTP domain named JeremysITLab, allowing it to share VTP information with other switches in the same domain. The command 'vtp version 2' ensures that each switch utilizes the same version of VTP. These commands should be repeated on the access layer switches: ASW-A1, ASW-A2, ASW-A3, ASW-B1, ASW-B2, and ASW-B3.
 <br />
+<br />
+Step 5:  In Office A, create and name the following VLANs on one of the Distribution switches. Ensure that VTP propagates the change. VLAN 10: PCs. LAN 20: Phones. VLAN 40: Wi-Fi. VLAN 99: Management.<br/>
+Office A:
+  
+  ```
+vlan 10
+name PCs
+vlan 20
+name Phones
+vlan 40
+name wi-fi
+vlan 99
+name Management
+```
 <p align="center">
-<img src="https://i.imgur.com/vTUd5D7.png" height="80%" width="80%" alt="filebeat"/>
-</p><br />
-I edited the /etc/filebeat/filebeat.yml file on the server to archive logs. Then restarted the filebeats service.
-<br/>
+<img src="https://i.imgur.com/Z9oGuoy.png" height="80%" width="80%" alt="Rule"/>
+</p><br /> The command 'vlan 10' creates a VLAN with that number. Then the 'name PCs' command names that vlan. These commands need to be entered on one of Office A's VTP server switches, either DSW-A1 or DSW-A2. It will send VTP advertisements to other members of the same VTP domain. VTP advertisements are only shared via trunks, currently, the configurations between the distribution layer and core layers are access ports, so VTP information in Office A will not be shared with Office B and vice versa.
 <br />
+<br />
+Step 6:  In Office A, create and name the following VLANs on one of the Distribution switches. Ensure that VTP propagates the change. VLAN 10: PCs. LAN 20: Phones. VLAN 30: Servers. VLAN 99: Management.<br/>
+Office B:
+  
+  ```
+vlan 10
+name PCs
+vlan 20
+name Phones
+vlan 30
+name Servers
+vlan 99
+name Management
+```
+
 <p align="center">
-<img src="https://i.imgur.com/fMDuLPK.png" height="80%" width="80%" alt="archiving"/>
-</p><br />
-I added an index in Wazuh to display all archived logs even if an alert was not generated.
-</p>
-<br />
-<br />
-Step 9: Create a custom rule in Wazuh to generate an alert on Mimikatz usage<br/>
-<p align="center">
-<img src="https://i.imgur.com/kb5Wy58.png" height="80%" width="80%" alt="Rule"/>
-</p><br /> I set the alert to generate when the program's original filename was run, so even if an attacker renamed Mimikatz an alert will still be generated.
+<img src="https://i.imgur.com/JIikWct.png" height="80%" width="80%" alt="Rule"/>
+</p><br /> The above commands create and name each VLAN in Office B. The above command only needs to be entered on one of the VTP servers. VTP advertisements will be sent to each of the other switches within the VTP domain in Office B.
 <br />
 <br />
 <h3>Part 3:Connect Shuffle(our SOAR)</h3>
