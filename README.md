@@ -217,7 +217,7 @@ vtp version 2
 <align="left"> The command 'vtp mode client' changes the VTP permissions for the switch. VTP client switches receive VLAN information from VTP servers and apply it to their configuration. They cannot create, modify, or delete VLANs. The command 'vtp domain JeremysITLab' joins the switch to a VTP domain named JeremysITLab, allowing it to share VTP information with other switches in the same domain. The command 'vtp version 2' ensures that each switch utilizes the same version of VTP. These commands should be repeated on the access layer switches: ASW-A1, ASW-A2, ASW-A3, ASW-B1, ASW-B2, and ASW-B3.
 <br />
 <br />
-Step 5:  In Office A, create and name the following VLANs on one of the Distribution switches. Ensure that VTP propagates the change. VLAN 10: PCs. LAN 20: Phones. VLAN 40: Wi-Fi. VLAN 99: Management.<br/>
+Step 5: In Office A, create and name the following VLANs on one of the Distribution switches. Ensure that VTP propagates the change. VLAN 10: PCs. LAN 20: Phones. VLAN 40: Wi-Fi. VLAN 99: Management.<br/>
 Office A:
   
   ```
@@ -231,11 +231,12 @@ vlan 99
 name Management
 ```
 <p align="center">
-<img src="https://i.imgur.com/Z9oGuoy.png" height="80%" width="80%" alt="Rule"/>
-</p><br /> The command 'vlan 10' creates a VLAN with that number. Then the 'name PCs' command names that vlan. These commands need to be entered on one of Office A's VTP server switches, either DSW-A1 or DSW-A2. It will send VTP advertisements to other members of the same VTP domain. VTP advertisements are only shared via trunks, currently, the configurations between the distribution layer and core layers are access ports, so VTP information in Office A will not be shared with Office B and vice versa.
+<img src="https://i.imgur.com/Z9oGuoy.png" height="80%" width="80%" alt="name vlans"/>
+</p><br /> 
+<align="left">The command 'vlan 10' creates a VLAN with that number. Then the 'name PCs' command names that vlan. These commands need to be entered on one of Office A's VTP server switches, either DSW-A1 or DSW-A2. It will send VTP advertisements to other members of the same VTP domain. VTP advertisements are only shared via trunks, currently, the configurations between the distribution layer and core layers are access ports, so VTP information in Office A will not be shared with Office B and vice versa.
 <br />
 <br />
-Step 6:  In Office A, create and name the following VLANs on one of the Distribution switches. Ensure that VTP propagates the change. VLAN 10: PCs. LAN 20: Phones. VLAN 30: Servers. VLAN 99: Management.<br/>
+Step 6: In Office B, create and name the following VLANs on one of the Distribution switches. Ensure that VTP propagates the change. VLAN 10: PCs. LAN 20: Phones. VLAN 30: Servers. VLAN 99: Management.<br/>
 Office B:
   
   ```
@@ -250,10 +251,82 @@ name Management
 ```
 
 <p align="center">
-<img src="https://i.imgur.com/JIikWct.png" height="80%" width="80%" alt="Rule"/>
-</p><br /> The above commands create and name each VLAN in Office B. The above command only needs to be entered on one of the VTP servers. VTP advertisements will be sent to each of the other switches within the VTP domain in Office B.
+<img src="https://i.imgur.com/JIikWct.png" height="80%" width="80%" alt="create/name vlans"/>
+</p><br /> 
+<align="left">The above commands create and name each VLAN in Office B. The above command only needs to be entered on one of the VTP servers. VTP advertisements will be sent to each of the other switches within the VTP domain in Office B.
 <br />
 <br />
+Step 7: Configure each Access switch’s access port. LWAPs will not use FlexConnect. PCs in VLAN 10, Phones in VLAN 20. SRV1 in VLAN 30. Manually configure access mode and explicitly disable DTP.<br/>
+
+ ASW-A1 and ASW-B1 
+  ```
+interface f0/1
+switchport mode access
+switchport nonegotiate
+switchport access vlan 99
+```
+<br />
+<align="left"> Office B does not have a Wi-Fi Vlan because LWAPs only need access to the Management VLAN. They will tunnel information to the WLC in office A, then the traffice will be assigned to VLAN 40. So the ports to the LWAPs can be configured as access ports, not trunks. The 'interface f0/1' command enters interface configuration mode. 'switchport mode access' makes this port an access port. 'switchport nonegotiate' disables Dynamic Trunking Protocol (DTP), although it's redundant because when an interface becomes an access port no more DTP messages will be sent from the interface. Enter the above commands on both ASW-A1 in office A and ASW-B1 in Office B
+
+ASW-A2, ASW-A3 and ASW-B2 
+  ```
+interface f0/1
+switchport mode access
+switchport nonegotiate
+switchport access vlan 10
+switchport voice vlan 20
+```
+
+<p align="center">
+<img src="https://i.imgur.com/mSqu8QO.png" height="80%" width="80%" alt="Access VLANs"/>
+</p><br />
+<align="left"> The above command makes int f0/1 an access port, join VLAN 10 and VLAN 20.
+<br />
+ASW-B3
+  
+  ```
+interface f0/1
+switchport mode access
+switchport nonegotiate
+switchport access vlan 30
+```
+<p align="center">
+<img src="https://i.imgur.com/gm7U1fX.png" height="80%" width="80%" alt="Access VLAN"/>
+</p><br />
+<align="left"> This image shows the output of 'show vlan brief' with interface fa0/1 in Server VLAN.
+<br />
+<br />
+Step 8: Configure ASW-A1’s connection to WLC1.  It must support the Wi-Fi and Management VLANs. The Management VLAN should be untagged. Disable DTP.
+
+ Office A ASW-A1
+  ```
+interface f0/2
+switchport mode trunk
+switchport trunk allowed vlan 40,99
+switchport trunk native vlan 99
+switchport nonegotiate
+```
+<align="left"> These commands are have already been explained in previous steps. This command is only entered on ASW-A1, in Office A, which connects to the WLC. Interface f0/2 is connected to WLC1 and it needs to support multiple VLANS so it is configured as a trunk. It needs access to Wi-Fi VLAN and the management VLAN so both are allowed over the trunk with the 'switchport trunk allowed vlan 40,99'. We are asked to have the management VLAN traffic be untagged, so the native VLAN for the trunk is assigned to VLAN 99, the Management VLAN. And we are asked to disable DTP, so the 'switchport nonegotiate' command is issued.
+<br />
+<br />
+Step 9:  Administratively disable all unused ports on Access and Distribution switches.
+Access and Distribution Layer Switches:
+
+  ```
+show interfaces status
+```
+
+  ```
+interface range g1/0/6-24,g1/1/3-4
+shutdown
+```
+<p align="center">
+<img src="https://i.imgur.com/AsosK2s.png" height="80%" width="80%" alt="Shutdown interfaces"/>
+</p><br />
+<align="left"> Shutting down all unused ports is a good security practice. Switches will automatically allow new physical connections to the switch to conenct to the network. Administratively shutting down the interface, will not allow access to network. This step need to be repeated on each switch in Office A and Office B: ASW-A1, ASW-A2, ASW-A3, ASW-B1, ASW-B2, ASW-B3, DSW-A2, DSW-B1 and DSW-B2. The 'show interfaces status' command should be eused on each switch to detmine with interfaces to be used with the 'interface range' command.
+
+
+  
 <h3>Part 3:Connect Shuffle(our SOAR)</h3>
 Step 1: Connect Wazuh Alerts
 <br /> 
