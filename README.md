@@ -97,47 +97,102 @@ logging synchronous
 <img src="https://i.imgur.com/KpT2OCm.png" height="80%" width="80%" alt="console line config"/>
 </p>
 <align="left"> 
-The 'line console 0' command is used to enter the console line configuration mode on a Cisco device. This mode allows you to configure settings for the console line, which is the physical console port on the device. The 'login local' command allows usernames and passwords configured locally on the device can be used to log in. The 'exec-timeout 30' command signs out the signed-in user after 30 minutes of inactivity. The 'logging synchronous' command ensures that system messages do not interrupt your command input on the consol, logging synchronous reprints your current command line after each log message. The step is repeated on each router and switch
+The 'line console 0' command is used to enter the console line configuration mode on a Cisco device. This mode allows you to configure settings for the console line, which is the physical console port on the device. The 'login local' command allows usernames and passwords configured locally on the device can be used to log in. The 'exec-timeout 30' command signs out the signed-in user after 30 minutes of inactivity. The 'logging synchronous' command ensures that system messages do not interrupt your command input on the consol, logging synchronous reprints your current command line after each log message. The step is repeated on each router and switch.
 <br /> 
 <br /> 
 
 <h3>Part 2: VLANs, Layer-2 EtherChannel</h3>
 Step 1: Configure a Layer-2 EtherChannel named PortChannel1 between DSW-A1 and DSW-A2 using a Cisco-proprietary protocol. Both switches should actively try to form an EtherChannel. <br/>
 
+  ```
+interface range g1/0/4-5
+channel-protocol pagp
+channel-group 1 mode desirable
+```
 <p align="center">
-<img src="https://i.imgur.com/1BG71U6.png" height="80%" width="80%" alt="Dependencies"/>
+<img src="https://i.imgur.com/P6VctL5.png" height="80%" width="80%" alt="PAgP EtherChannel"/>
 </p>
-<br />
-<align="left">TheHive requires Java, Elasticsearch, and Cassandra to run.
-</p>
-<br />
-Step 6: Add an agent to Wazuh<br />
-<p align="center">
-<img src="https://i.imgur.com/Z7s3173.png" height="80%" width="80%" alt="Agent add"/>
-</p>
-<br /><br />
-Step 7: Configure TheHive<br />
-<p align="center">
-<img src="https://i.imgur.com/DT1NbRi.png" height="80%" width="80%" alt="Cassandra.yaml"/>
-</p>
-<br />
-<align="left">I started by using nano to configure Cassandra, by editing the file located at /etc/cassandra/cassandra.yaml. I set the listen address, the rpc address, and the seed address to reflect the public IP of TheHive. Then restart the service after the configuration.
-<br />
+<align="left"> 
+This command configures a Layer 2 EtherChannel on a Cisco switch using the Port Aggregation Protocol (PAgP). PAgP is a Cisco proprietary protocol used to form an EtherChannel. EtherChannels bundle multiple physical links into a single logical link, providing redundancy, load balancing, and simplified network management, along with other benefits. The interface range command allows for grouping interfaces to be configured simultaneously, rather than configuring each interface individually. The 'channel-protocol pagp' line sets PAgP as the EtherChannel negotiation protocol for the group of interfaces; however, this line is not necessary. Finally, 'channel-group 1 mode desirable' adds the selected interfaces to EtherChannel group 1 in desirable mode, which actively tries to form an EtherChannel using PAgP. These commands need to be entered on both DSW-A1 and DSW-A2 only.
 <br /> 
+<br /> 
+Step 2: Configure a Layer-2 EtherChannel named PortChannel1 between DSW-B1 and DSW-B2 using an open standard protocol. Both switches should actively try to form an EtherChannel.<br />
+
+  ```
+interface range g1/0/4-5
+channel-protocol lagp
+channel-group 1 mode active
+```
 <p align="center">
-<img src="https://i.imgur.com/gKyFbAF.png" height="80%" width="80%" alt="Elasticsearch"/>
+<img src="https://i.imgur.com/DoKcwgb.png" height="80%" width="80%" alt="LACP EtherChannel"/>
 </p>
-<br />
-<align="left">I started by using nano to configure Elasticsearch, by editing the file located at /etc/elasticsearch/elasticsearch.yml. I set the cluster name, removed the comment to enable 'node.name', set the network host address to the public IP address of TheHive, and enabled 'cluster.initial_master_node'. Then restarted elasticsearch
-<br />
-<br />
+<align="left"> 
+This command configures a Layer 2 EtherChannel on a switch using the Ling Aggregation Protocol (LACP). LACP is an open standard protocol used to form an EtherChannel, LACP is defined in the IEEE 802.3ad.  The 'channel-protocol lacp' line sets LACP as the EtherChannel negotiation protocol for the group of interfaces; it is not necessary. Finally, 'channel-group 1 mode active' adds the selected interfaces to EtherChannel group 1 in active mode, which actively tries to form an EtherChannel using LACP. These commands need to be entered on both DSW-B1 and DSW-B2 only.
+<br /> 
+<br /> 
+Step 3: Configure all links between Access and Distribution switches, including the EtherChannels, as trunk links. Disable DTP on all ports. Set each trunk's native VLAN to VLAN 1000(unused). In Office A, allow VLANs 10, 20, 40, and 99 on all trunks.In Office B, allow VLANs 10, 20, 30, and 99 on all trunks.<br />
+  
+Office A Access Layer:
+  ```
+interface range g0/1-2
+switchport mode trunk
+switchport nonegotiate
+switchport trunk native vlan 1000
+switchport trunk allowed vlan 10,20,40,99
+```
 <p align="center">
-<img src="https://i.imgur.com/G7i7W5b.png" height="80%" width="80%" alt="Elasticsearch"/>
+<img src="https://i.imgur.com/qQ3y9dq.png" height="80%" width="80%" alt="LACP EtherChannel"/>
 </p>
-<br />
-<align="left">I used nano to configure TheHive, by editing the file located at /etc/thehive/application.conf. I set the hostnames' IP address, the cluster-name, and  the application.baseUrl. Then restarted TheHive
-<br />
-<br />
+
+Office B Access Layer:
+  ```
+interface range g0/1-2
+switchport mode trunk
+switchport nonegotiate
+switchport trunk native vlan 1000
+switchport trunk allowed vlan 10,20,30,99
+```
+<p align="center">
+<img src="https://i.imgur.com/O1otgd2.png" height="80%" width="80%" alt="LACP EtherChannel"/>
+</p>
+<align="left"> This configuration establishes two trunk ports that will not negotiate trunking dynamically, defines a native VLAN (VLAN 1000), and restricts the allowed VLANs for the trunk. A Virtual Local Area Network (VLAN) is a logical grouping of devices within a larger physical network, enabling network segmentation. A trunk is used when you need to carry multiple VLANs on an interface. Using the command 'switchport nonegotiate' ensures that the trunk will not attempt to negotiate with neighboring devices, providing more control and reducing potential misconfigurations. The command 'switchport trunk native vlan 1000' sets the native VLAN to an unused VLAN, ensuring that all packets are tagged with the source VLAN, preventing them from being inadvertently sent to an unintended destination. This reduces the risk of VLAN hopping and minimizes security risks. The command 'switchport trunk allowed vlan 10,20,40,99' used in Office A and 'switchport trunk allowed vlan 10,20,30,99' used in Office B specify which VLANs are allowed to be sent on the trunk. If a packet is not tagged with one of these VLANs for the respective offices, it is dropped. Office A commands are used on ASW-A1, ASW-A2, and ASW-A3. Office B commands are used on ASW-B1, ASW-B3, ASW-B3.
+  
+Office A Distribution Layer:
+  ```
+interface range g1/0/1-3
+switchport mode trunk
+switchport nonegotiate
+switchport trunk native vlan 1000
+switchport trunk allowed vlan 10,20,40,99
+```
+  ```
+interface po1
+switchport mode trunk
+switchport nonegotiate
+switchport trunk native vlan 1000
+switchport trunk allowed vlan 10,20,40,99
+```
+
+Office B Distribution Layer:
+  ```
+interface range g1/0/1-3
+switchport mode trunk
+switchport nonegotiate
+switchport trunk native vlan 1000
+switchport trunk allowed vlan 10,20,30,99
+```
+  ```
+interface po1
+switchport mode trunk
+switchport nonegotiate
+switchport trunk native vlan 1000
+switchport trunk allowed vlan 10,20,30,99
+```
+
+The Office A commands are used on switches DSW-A1 and DSW-A2, while the Office B commands are used on switches DSW-B1 and DSW-B2. They serve the same purpose as described above but operate in the opposite direction, from the distribution layer switches to the access layer switches. The interface po1 command is used to configure the EtherChannel, allowing traffic to be sent through it as well. During these configurations, you may receive several Syslog CDP warnings about native VLAN mismatches. This is normal while completing this step. Once all switches are configured appropriately, the Syslog warnings will stop.
+<br /> 
+<br /> 
+
 Step 8: Configure Wazuh
 <br/>
 <p align="center">
