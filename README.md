@@ -280,7 +280,7 @@ switchport voice vlan 20
 <p align="center">
 <img src="https://i.imgur.com/mSqu8QO.png" height="80%" width="80%" alt="Access VLANs"/>
 </p><br />
-<align="left"> The above command makes int f0/1 an access port, join VLAN 10 and VLAN 20.
+<align="left"> The above command makes int f0/1 an access port, join VLAN 10 and VLAN 20, and disables DTP.
 <br />
 ASW-B3
   
@@ -306,10 +306,10 @@ switchport trunk allowed vlan 40,99
 switchport trunk native vlan 99
 switchport nonegotiate
 ```
-<align="left"> These commands are have already been explained in previous steps. This command is only entered on ASW-A1, in Office A, which connects to the WLC. Interface f0/2 is connected to WLC1 and it needs to support multiple VLANS so it is configured as a trunk. It needs access to Wi-Fi VLAN and the management VLAN so both are allowed over the trunk with the 'switchport trunk allowed vlan 40,99'. We are asked to have the management VLAN traffic be untagged, so the native VLAN for the trunk is assigned to VLAN 99, the Management VLAN. And we are asked to disable DTP, so the 'switchport nonegotiate' command is issued.
+<align="left"> These commands have already been explained in previous steps. This command is only entered on ASW-A1, in Office A, which connects to the WLC. Interface f0/2 is connected to WLC1 and it needs to support multiple VLANS so it is configured as a trunk. It needs access to Wi-Fi VLAN and the management VLAN so both are allowed over the trunk with the 'switchport trunk allowed vlan 40,99'. We are asked to have the management VLAN traffic be untagged, so the native VLAN for the trunk is assigned to VLAN 99, the Management VLAN. And we are asked to disable DTP, so the 'switchport nonegotiate' command is issued.
 <br />
 <br />
-Step 9:  Administratively disable all unused ports on Access and Distribution switches.
+Step 9:  Administratively disable all unused ports on the Access and Distribution switches.
 Access and Distribution Layer Switches:
 
   ```
@@ -358,7 +358,7 @@ interface l0
 
 ```
 
-At this step, we are beginning to assign static IPv4 addresses. Generally, in your network, it's good practice to set static IP addresses on network interfaces so that you can have set addresses to diagnose network errors. The external-facing interfaces, G0/0/0 and G0/1/0, use Dynamic Host Configuration Protocol (DHCP) to have their interfaces assigned an address from the Internet Service Provider that they are connected to. Later, Network Address Translation (NAT) will be applied so that internal devices will be able to reach the Internet.
+<p><align="left">At this step, we are beginning to assign static IPv4 addresses. Generally, in your network, it's good practice to set static IP addresses on network interfaces so that you can have set addresses to diagnose network errors. The external-facing interfaces, G0/0/0 and G0/1/0, use Dynamic Host Configuration Protocol (DHCP) to have their interfaces assigned an address from the Internet Service Provider that they are connected to. Later, Network Address Translation (NAT) will be applied so that internal devices will be able to reach the Internet.
 
 From Global Configuration mode, enter the command 'interface `<interface #>`' to enter interface configuration mode (config-if)#, followed by the command 'ip address `<ip address>` `<netmask>`' to assign a static IP address. The command 'no shutdown' needs to be used on each interface because router interfaces are down by default, unlike switches. The 'no shutdown' command is not needed on the loopback interface l0 because the command int l0 creates a virtual loopback interface, which is active by default. Now, the output of the command 'do show ip interface brief' from Global configuration mode should look like this:</p>
 <p align="center">
@@ -378,6 +378,206 @@ ip routing
 <p><align="left">This command needs to be entered on all core and distribution switches: CSW1, CSW2, DSW-A1, DSW-A2, DSW-B1, and DSW-B2. Switches, by default, utilize Layer 2 addressing (MAC addresses). They do not use or need IP addresses or have an IP routing table. These core and distribution switches are all Layer 3 or multilayer switches. The command ip routing allows each of these switches to utilize Layer 3 addressing (IP protocols) while maintaining their Layer 2 functions. Now they can build IP routing tables.
 </br>
 </br>
+Step 3: Create a Layer-3 EtherChannel between CSW1 and CSW2 using a Cisco-proprietary protocol. Both switches should actively try to form an EtherChannel. Configure the following IP addresses:<br />
+
+- <b>CSW1 PortChannel1: 10.0.0.41/30</b>
+- <b>CSW2 PortChannel1: 10.0.0.42/30</b>
+
+CSW1:
+
+   ```
+interface range g1/0/2-3
+no switchport
+channel-group 1 mode desirable
+interface po1
+ip address 10.0.0.41 255.255.255.252
+```
+CSW2:
+
+  ```
+interface range g1/0/2-3
+no switchport
+channel-group 1 mode desirable
+interface po1
+ip address 10.0.0.42 255.255.255.252
+```
+<p align="center">
+<img src="https://i.imgur.com/44CGceb.png" height="80%" width="80%" alt="ip routing"/>
+</p></br>
+<align="left">The above commands create a Layer 3 EtherChannel using PAgP. The first line of the command groups the interfaces in interface configuration mode. The command 'no switchport' disables Layer 2 addressing on the ports, turning them into Layer 3 ports. The command 'channel-group 1 mode desirable' creates an EtherChannel port using PAgP mode desirable, which actively tries to create an EtherChannel. The final two lines, starting with 'interface po1', enter configuration mode for the PortChannel 1 interface and assign an IP address so the EtherChannel can communicate with other Layer 3 network devices.
+</br>
+</br>
+Step 4: Configure the following IP addresses on CSW1: </br>
+  
+- <b>G1/0/1: 10.0.0.34/30</b>  
+- <b>G1/1/1: 10.0.0.45/30</b>
+- <b>G1/1/2: 10.0.0.49/30</b>
+- <b>G1/1/3: 10.0.0.53/30</b>  
+- <b>G1/1/4: 10.0.0.57/30 </b>  
+- <b>Loopback0: 10.0.0.77/32</b>
+  
+Disable all unused interfaces.
+
+  ```
+interface g1/0/1
+ip address 10.0.0.34 255.255.255.252
+interface g1/1/1
+ip address 10.0.0.45 255.255.255.252
+interface g1/1/2 
+ip address 10.0.0.49 255.255.255.252
+interface g1/1/3
+ip address 10.0.0.53 255.255.255.252
+interface g1/1/4
+ip address 10.0.0.57 255.255.255.252
+interface L0
+ip address 10.0.0.77 255.255.255.255
+interface range g1/0/4-24
+shutdown
+```
+
+
+<p><align="left">These commands assign IP addresses to individual interfaces. The command 'show ip int br | include unassigned' was used to identify which interfaces are not being used before entering the interface range. Interfaces g1/0/2-3 were excluded from the shutdown command as they are used for the EtherChannel. It is good security practice to administratively shut down switch interfaces that are not in use. Additionally, moving these switches to an unused VLAN, enabling port security, and disabling CDP or LLDP are also good security measures for unused ports. The IP Interface brief should now look like this :
+<p align="center">
+<img src="https://i.imgur.com/KKH5Ieq.png" height="80%" width="80%" alt="ip routing"/>
+</p></br>
+</br>
+Step 5: Configure the following IP addresses on CSW2: </br>
+  
+- <b>G1/0/1: 10.0.0.38/30</b>  
+- <b>G1/1/1: 10.0.0.61/30</b>
+- <b>G1/1/2: 10.0.0.65/30</b>
+- <b>G1/1/3: 10.0.0.69/30</b>  
+- <b>G1/1/4: 10.0.0.73/30 </b>  
+- <b>Loopback0: 10.0.0.78/32</b>
+  
+Disable all unused interfaces.
+
+  ```
+interface g1/0/1
+ip address 10.0.0.38 255.255.255.252
+interface g1/1/1
+ip address 10.0.0.61 255.255.255.252
+interface g1/1/2 
+ip address 10.0.0.65 255.255.255.252
+interface g1/1/3
+ip address 10.0.0.69 255.255.255.252
+int g1/1/4
+ip address 10.0.0.73 255.255.252
+interface L0
+ip address 10.0.0.78 255.255.255.255
+interface range g1/0/4-24
+shutdown
+```
+
+
+<p><align="left">Same commands for CSW1, but the IP addresses have been updated. It's a good security practice to administratively shut down switch interfaces that are not being used. Additionally, moving these switches to an unused VLAN, enabling port security, and disabling CDP or LLDP are also good security measures for unused ports. The IP Interface brief should now look like this :
+<p align="center">
+<img src="https://i.imgur.com/kucSUUK.png" height="80%" width="80%" alt="ip routing"/>
+</p></br>
+</br>
+Step 6: Configure the following IP addresses on DSW-A1: </br>
+  
+- <b>G1/1/1: 10.0.0.46/30</b>
+- <b>G1/1/2: 10.0.0.62/30/<b> 
+- <b>Loopback0: 10.0.0.7/32</b>
+
+ ```
+interface g1/1/1
+ip address 10.0.0.46 255.255.255.252
+int g1/1/2
+ip address 10.0.0.62 255.255.255.252
+interface L0
+ip address 10.0.0.79 255.255.255.255
+```
+
+
+<p><align="left">These are the IP interface configurations for DSW-A1. The IP Interface brief should now look like this :
+<p align="center">
+<img src="https://i.imgur.com/a7fl291.png" height="80%" width="80%" alt="dsw-A1"/>
+</p></br>
+Step 7: Configure the following IP addresses on DSW-A2: </br>
+  
+- <b>G1/1/1: 10.0.0.50/30</b>
+- <b>G1/1/2: 10.0.0.66/30</b>
+- <b>Loopback0: 10.0.0.80/32</b>
+  
+
+```
+interface g1/1/1
+ip address 10.0.0.50 255.255.255.252
+int g1/1/2
+ip address 10.0.0.66 255.255.255.252
+interface L0
+ip address 10.0.0.80 255.255.255.255
+```
+
+
+<p><align="left">Entering these IP addresses is very tedious, but they must be all entered correctly along with correct netmasks. The IP Interface brief should now look like this :
+<p align="center">
+<img src="https://i.imgur.com/xdU65i8.png" height="80%" width="80%" alt="dsw-a2"/>
+</p></br>
+</br>
+Step 8: Configure the following IP addresses on DSW-B1: </br>
+  
+- <b>G1/1/1: 10.0.0.54/30</b>
+- <b>G1/1/2: 10.0.0.70/30</b>
+- <b>Loopback0: 10.0.0.81/32</b>
+  
+
+```
+interface g1/1/1
+ip address 10.0.0.54 255.255.255.252
+int g1/1/2
+ip address 10.0.0.70 255.255.255.252
+interface L0
+ip address 10.0.0.81 255.255.255.255
+```
+
+
+<p><align="left"> The IP Interface brief on DSW-B1 should now look like this :
+<p align="center">
+<img src="https://i.imgur.com/nJ4M81r.png" height="80%" width="80%" alt="dsw-b1"/>
+</p></br>
+</br>
+Step 9: Configure the following IP addresses on DSW-B2: </br>
+  
+- <b>G1/1/1: 10.0.0.58/30</b>
+- <b>G1/1/2: 10.0.0.74/30</b>
+- <b>Loopback0: 10.0.0.82/32</b>
+  
+
+```
+interface g1/1/1
+ip address 10.0.0.58 255.255.255.252
+int g1/1/2
+ip address 10.0.0.74 255.255.255.252
+interface L0
+ip address 10.0.0.82 255.255.255.255
+```
+
+
+I made typos while entering some of these interface configurations, so it's good to check your work by using the command 'do show ip interface brief' from global config mode or 'show ip interface brief' from privileged exec mode. If any typos were made, use 'interface `<# of interface with error>`' and 'no ip address `<incorrect address>` `<netmask>`' commands to delete the entry. Then reenter the correct IP address. It is also good to use the 'write' command from privileged exec mode or 'do write' from global config mode to save your work. These commands write the running configuration to the startup configuration.
+  
+The IP Interface brief on DSW-B2 should now look like this :
+<p align="center">
+<img src="https://i.imgur.com/7ut7p1V.png" height="80%" width="80%" alt="dsw-b2"/>
+</p></br>
+</br>
+Step 10: Manually configure SRV1’s IP settings: </br>
+  
+- <b>Default Gateway: 10.5.0.1</b>
+- <b>IPv4 Address: 10.5.0.4</b>
+- <b>Subnet Mask: 255.255.255.0</b>
+  
+To enter the configuration setting on end hosts, in packet tracer, you must use the GUI to manually set the configuration.
+</br>
+<p align="center">
+<img src="https://i.imgur.com/RII6kW3.png" height="80%" width="80%" alt="SRV1"/>
+<img src="https://i.imgur.com/CDEaAJB.png" height="80%" width="80%" alt="SRV1"/>
+</p></br>
+</br>
+
+
 
 
 
