@@ -28,7 +28,7 @@ Step 1: Configure appropriate hostnames for each router and switch
   
   ```
 enable
-  configuration terminal
+configuration terminal
 ```
   ```
 hostname <name>
@@ -51,7 +51,7 @@ enable algorithm-type script secret jeremysitlab
 ```
 or
   ```
-  enable secret jeremysitlab
+enable secret jeremysitlab
 ```
 
 
@@ -89,15 +89,15 @@ Step 4: Configure the console line to require login with a local user account. S
 
   ```
 line console 0
-login local
-exec-timeout 30
-logging synchronous
+  login local
+  exec-timeout 30
+  logging synchronous
 ```
 <p align="center">
 <img src="https://i.imgur.com/KpT2OCm.png" height="80%" width="80%" alt="console line config"/>
 </p>
 <align="left"> 
-The 'line console 0' command is used to enter the console line configuration mode on a Cisco device. This mode allows you to configure settings for the console line, which is the physical console port on the device. The 'login local' command allows usernames and passwords configured locally on the device can be used to log in. The 'exec-timeout 30' command signs out the signed-in user after 30 minutes of inactivity. The 'logging synchronous' command ensures that system messages do not interrupt your command input on the consol, logging synchronous reprints your current command line after each log message. The step is repeated on each router and switch.
+The 'line console 0' command is used to enter the console line configuration mode on a Cisco device. This mode allows you to configure settings for the console line, which is the physical console port on the device. The 'login local' command allows usernames and passwords configured locally on the device can be used to log in. The 'exec-timeout 30' command signs out the signed-in user after 30 minutes of inactivity. The 'logging synchronous' command ensures that system messages do not interrupt your command input on the console, logging synchronous reprints your current command line after each log message. The step is repeated on each router and switch.
 <br /> 
 <br /> 
 
@@ -106,8 +106,8 @@ Step 1: Configure a Layer-2 EtherChannel named PortChannel1 between DSW-A1 and D
 
   ```
 interface range g1/0/4-5
-channel-protocol pagp
-channel-group 1 mode desirable
+  channel-protocol pagp
+  channel-group 1 mode desirable
 ```
 <p align="center">
 <img src="https://i.imgur.com/P6VctL5.png" height="80%" width="80%" alt="PAgP EtherChannel"/>
@@ -120,8 +120,8 @@ Step 2: Configure a Layer-2 EtherChannel named PortChannel1 between DSW-B1 and D
 
   ```
 interface range g1/0/4-5
-channel-protocol lagp
-channel-group 1 mode active
+  channel-protocol lagp
+  channel-group 1 mode active
 ```
 <p align="center">
 <img src="https://i.imgur.com/DoKcwgb.png" height="80%" width="80%" alt="LACP EtherChannel"/>
@@ -135,10 +135,10 @@ Step 3: Configure all links between Access and Distribution switches, including 
 Office A Access Layer:
   ```
 interface range g0/1-2
-switchport mode trunk
-switchport nonegotiate
-switchport trunk native vlan 1000
-switchport trunk allowed vlan 10,20,40,99
+  switchport mode trunk
+  switchport nonegotiate
+  switchport trunk native vlan 1000
+  switchport trunk allowed vlan 10,20,40,99
 ```
 <p align="center">
 <img src="https://i.imgur.com/qQ3y9dq.png" height="80%" width="80%" alt="LACP EtherChannel"/>
@@ -147,10 +147,10 @@ switchport trunk allowed vlan 10,20,40,99
 Office B Access Layer:
   ```
 interface range g0/1-2
-switchport mode trunk
-switchport nonegotiate
-switchport trunk native vlan 1000
-switchport trunk allowed vlan 10,20,30,99
+  switchport mode trunk
+  switchport nonegotiate
+  switchport trunk native vlan 1000
+  switchport trunk allowed vlan 10,20,30,99
 ```
 <p align="center">
 <img src="https://i.imgur.com/O1otgd2.png" height="80%" width="80%" alt="LACP EtherChannel"/>
@@ -266,7 +266,7 @@ switchport nonegotiate
 switchport access vlan 99
 ```
 <br />
-<align="left"> Office B does not have a Wi-Fi Vlan because LWAPs only need access to the Management VLAN. They will tunnel information to the WLC in office A, then the traffice will be assigned to VLAN 40. So the ports to the LWAPs can be configured as access ports, not trunks. The 'interface f0/1' command enters interface configuration mode. 'switchport mode access' makes this port an access port. 'switchport nonegotiate' disables Dynamic Trunking Protocol (DTP), although it's redundant because when an interface becomes an access port no more DTP messages will be sent from the interface. Enter the above commands on both ASW-A1 in office A and ASW-B1 in Office B
+<align="left"> Office B does not have a Wi-Fi Vlan because LWAPs only need access to the Management VLAN. They will tunnel information to the WLC in office A, then the traffic will be assigned to VLAN 40. So the ports to the LWAPs can be configured as access ports, not trunks. The 'interface f0/1' command enters interface configuration mode. 'switchport mode access' makes this port an access port. 'switchport nonegotiate' disables Dynamic Trunking Protocol (DTP), although it's redundant because when an interface becomes an access port no more DTP messages will be sent from the interface. Enter the above commands on both ASW-A1 in Office A and ASW-B1 in Office B
 
 ASW-A2, ASW-A3 and ASW-B2 
   ```
@@ -323,12 +323,87 @@ shutdown
 <p align="center">
 <img src="https://i.imgur.com/AsosK2s.png" height="80%" width="80%" alt="Shutdown interfaces"/>
 </p><br />
-<align="left"> Shutting down all unused ports is a good security practice. Switches will automatically allow new physical connections to the switch to conenct to the network. Administratively shutting down the interface, will not allow access to network. This step need to be repeated on each switch in Office A and Office B: ASW-A1, ASW-A2, ASW-A3, ASW-B1, ASW-B2, ASW-B3, DSW-A2, DSW-B1 and DSW-B2. The 'show interfaces status' command should be eused on each switch to detmine with interfaces to be used with the 'interface range' command.
+<align="left"> Shutting down all unused ports is a good security practice. Switches will automatically allow new physical connections to the switch to connect to the network. Administratively shutting down the interface, will not allow access to the network. This step needs to be repeated on each switch in Office A and Office B: ASW-A1, ASW-A2, ASW-A3, ASW-B1, ASW-B2, ASW-B3, DSW-A2, DSW-B1 and DSW-B2. The 'show interfaces status' command should be used on each switch to determine which interfaces to use with the 'interface range' command.
 
 
   
-<h3>Part 3:Connect Shuffle(our SOAR)</h3>
-Step 1: Connect Wazuh Alerts
+<h3>Part 3: IP Addresses, Layer-3 EtherChannel, HSRP </h3>
+Step 1: Configure the following IP addresses on R1’s interfaces and enable them:<br />
+
+- <b>G0/0/0: DHCP client</b>
+- <b>G0/1/0: DHCP client</b>
+- <b>G0/0: 10.0.0.33/30</b>
+- <b>G0/1: 10.0.0.37/30</b>
+- <b>Loopback0: 10.0.0.76/32</b>
+
+ ```
+interface g0/0/0
+ ip address dhcp
+ no shutdown
+
+interface g0/1/0
+ ip address dhcp
+ no shutdown
+
+interface g0/0
+ ip address 10.0.0.33 255.255.255.252
+ no shutdown
+
+interface g0/1
+ ip address 10.0.0.37 255.255.255.252
+ no shutdown
+
+interface l0
+ ip address 10.0.0.76 255.255.255.255
+
+```
+
+At this step, we are beginning to assign static IPv4 addresses. Generally, in your network, it's good practice to set static IP addresses on network interfaces so that you can have set addresses to diagnose network errors. The external-facing interfaces, G0/0/0 and G0/1/0, use Dynamic Host Configuration Protocol (DHCP) to have their interfaces assigned an address from the Internet Service Provider that they are connected to. Later, Network Address Translation (NAT) will be applied so that internal devices will be able to reach the Internet.
+
+From Global Configuration mode, enter the command 'interface `<interface #>`' to enter interface configuration mode (config-if)#, followed by the command 'ip address `<ip address>` `<netmask>`' to assign a static IP address. The command 'no shutdown' needs to be used on each interface because router interfaces are down by default, unlike switches. The 'no shutdown' command is not needed on the loopback interface l0 because the command int l0 creates a virtual loopback interface, which is active by default. Now, the output of the command 'do show ip interface brief' from Global configuration mode should look like this:</p>
+<p align="center">
+<img src="https://i.imgur.com/SAq9sCL.png" height="80%" width="80%" alt="R1 ipv4 interfaces"/>
+</p>
+</br>
+</br>
+Step 2: Enable IPv4 routing on all Core and Distribution switches<br />
+
+ ```
+ip routing
+```
+
+<p align="center">
+<img src="https://i.imgur.com/jdaNlgB.png" height="80%" width="80%" alt="ip routing"/>
+</p>
+<p><align="left">This command needs to be entered on all core and distribution switches: CSW1, CSW2, DSW-A1, DSW-A2, DSW-B1, and DSW-B2. Switches, by default, utilize Layer 2 addressing (MAC addresses). They do not use or need IP addresses or have an IP routing table. These core and distribution switches are all Layer 3 or multilayer switches. The command ip routing allows each of these switches to utilize Layer 3 addressing (IP protocols) while maintaining their Layer 2 functions. Now they can build IP routing tables.
+</br>
+</br>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <br /> 
 <p align="center">
 <img src="https://i.imgur.com/1LyLUHR.png" height="80%" width="80%" alt="Webhook"/>
