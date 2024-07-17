@@ -742,7 +742,7 @@ Step 15. Configure HSRPv2 group 4 for Office A’s Wi-Fi subnet (VLAN 40). Make 
 - <b>Subnet: 10.6.0.0/24</b>
 - <b>VIP: 10.6.0.1  </b>
 - <b>DSW-A1: 10.6.0.2</b>
-- <b>>DSW-A2: 10.6.0.3</b>
+- <b>DSW-A2: 10.6.0.3</b>
 
 DSW-A1:
    ```
@@ -822,6 +822,9 @@ standby 2  ip 10.3.0.1
 standby 2 priority 105
 standby 2 preempt
 ```
+<p align="center">
+<img src="https://i.imgur.com/spcqYvd.png" height="80%" width="80%" alt="v20a1"/>
+</p></br>
 
 DSW-B2:
   ```
@@ -830,8 +833,77 @@ ip address 10.3.0.3 255.255.255.0
 standby version 2
 standby 2 ip 10.3.0.1
 ```
+These are the same configurations as step 13, but in the 10.3.0.0 subnet, allowing 244 hosts in Office B. DSW-B1 is the active router and DSW-B2 is standby router in the PCs subnet.
+</br>
+</br>
+Step 18. Configure HSRPv2 group 3 for Office B’s Phones subnet (VLAN 20). Make DSW-B2 the Active router by increasing its priority to 5 above the default, and enable preemption on DSW-B2.</br>
 
+- <b>Subnet: 10.4.0.0/24</b>
+- <b>VIP: 10.4.0.1</b>
+- <b>DSW-B1: 10.4.0.2</b>
+- <b>DSW-B2: 10.4.0.3</b>
 
+DSW-B1:
+
+   ```
+interface vlan 20
+ip address 10.4.0.2 255.255.255.0
+standby version 2
+standby 3  ip 10.4.0.1
+```
+<p align="center">
+<img src="https://i.imgur.com/vAbl9pt.png" height="80%" width="80%" alt="v20a1"/>
+</p></br>
+
+DSW-B2:
+   ```
+interface vlan 20
+ip address 10.4.0.3 255.255.255.0
+standby version 2
+standby 3 ip 10.4.0.1
+standby 3 priority 105
+standby 3 preempt
+```
+<p align="center">
+<img src="https://i.imgur.com/ubUXDkr.png" height="80%" width="80%" alt="v20a1"/>
+</p></br>
+Another example of load balancing. The Phones subnet will use DSW-B2 as the active router, and DSW-B1 as the standby router.
+</br>
+</br>
+Step 19. Configure HSRPv2 group 4 for Office B’s Servers subnet (VLAN 30). Make DSW-B2 the Active router by increasing its priority to 5 above the default, and enable preemption on DSW-B2.</br>
+
+- <b>Subnet: 10.5.0.0/24</b>
+- <b>VIP: 10.5.0.1</b>
+- <b>DSW-B1 10.5.0.2</b>
+- <b>DSW-B2: 10.5.0.3</b>
+
+DSW-B1:
+
+   ```
+interface vlan 30
+ip address 10.5.0.2 255.255.255.0
+standby version 2
+standby 4  ip 10.5.0.1
+```
+<p align="center">
+<img src="https://i.imgur.com/e57pk7R.png" height="80%" width="80%" alt="v20a1"/>
+</p></br>
+
+DSW-B2:
+  ```
+interface vlan 30
+ip address 10.5.0.3 255.255.255.0
+standby version 2
+standby 4 ip 10.5.0.1
+standby 4 priority 105
+standby 4 preempt
+```
+<p align="center">
+<img src="https://i.imgur.com/DTmnJui.png" height="80%" width="80%" alt="v20a1"/>
+</p></br>
+That's it for configuring HSRPv2 in Office B. The command 'logging synchronous' command entered earlier is very helpful for this stage. If you mix up the VLAN ip address and the VIp you will get tons of Syslog message indicating misconfigurations. If you get those syslog errors, hit the up arrow to repeat the last command but put 'no' at the beginning of the line to undo the last command. Typos will certainly create Syslog messages during HSRP configurations.
+</br>
+</br>
 
 
 
