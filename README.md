@@ -533,7 +533,6 @@ interface L0
 ip address 10.0.0.81 255.255.255.255
 ```
 
-
 <p><align="left"> The IP Interface brief on DSW-B1 should now look like this :
 <p align="center">
 <img src="https://i.imgur.com/nJ4M81r.png" height="80%" width="80%" alt="dsw-b1"/>
@@ -576,16 +575,261 @@ To enter the configuration setting on end hosts, in packet tracer, you must use 
 <img src="https://i.imgur.com/CDEaAJB.png" height="80%" width="80%" alt="SRV1"/>
 </p></br>
 </br>
+Step 11: Configure the following management IP addresses on the Access switches (interface VLAN 99):</br>
 
+- <b>ASW-A1: 10.0.0.4/28</b>
+- <b>ASW-A2: 10.0.0.5/28</b>
+- <b>ASW-A3: 10.0.0.6/28</b>
+- <b>ASW-B1: 10.0.0.20/28</b>
+- <b>ASW-B2: 10.0.0.21/28</b>
+- <b>ASW-B3: 10.0.0.22/28</b>
+And configure the appropriate subnet’s first usable address as the default gateway.</br>
 
+```
+ip default-gateway 10.0.0.1
+interface vlan 99
+ip address 10.0.0.4 255.255.255.240
+```
+ASW-A2:
 
+  ```
+ip default-gateway 10.0.0.1
+interface vlan 99
+ip address 10.0.0.5 255.255.255.240
+```
+ASW-A3:
 
+  ```
+ip default-gateway 10.0.0.1
+interface vlan 99
+ip address 10.0.0.6 255.255.255.240
+```
+<p align="center">
+<img src="https://i.imgur.com/V1VATBg.png" height="80%" width="80%" alt="asw-a2"/>
+</p></br>
+ASW-B1:
 
+  ```
+ip default-gateway 10.0.0.17
+interface vlan 99
+ip address 10.0.0.20 255.255.255.240
+```
+ASW-B2:
 
+  ```
+ip default-gateway 10.0.0.17
+interface vlan 99
+ip address 10.0.0.21 255.255.255.240
+```
 
+ASW-B3:
 
+   ```
+ip default-gateway 10.0.0.17
+interface vlan 99
+ip address 10.0.0.22 255.255.255.240
 
+```
+<p align="center">
+<img src="https://i.imgur.com/n4MbmL8.png" height="80%" width="80%" alt="asw-b2"/>
+</p></br>
+<align="left">These interface configurations create virtual interfaces that allow the management VLAN to communicate with these access layer, layer 2 switches. The 'default-gateway' command is added to the configuration because layer 2 switches do not have routing tables, they do not know where to send ip traffic. The 'default-gateway' command tells the switch where to forward IP traffic. Switches in Office A and Office B have different default gateway addresses because each office has a netmask of /28 meaning there are 16 total addresses. For office A, 10.0.0.0 is the network address and 10.0.0.15 is the broadcast address making 10.0.0.1 the first usable address. For Office B, 10.0.0.16 is the network address and 10.0.0.31 is the broadcast address making 10.0.0.17 the first usable address.
+<br />
+<br />
+Step 12: Configure HSRPv2 group 1 for Office A’s Management subnet (VLAN 99). Make DSW-A1 the Active router by increasing its priority to 5 above the default, and enable preemption on DSW-A1.</br>
+  
+  -<b>Subnet: 10.0.0.0/28</b> 
+  -<b>VIP: 10.0.0.1</b> 
+  -<b>DSW-A1: 10.0.0.2</b> 
+  -<b>DSW-A2: 10.0.0.3</b>
+  
+ DSW-A1:
+   ```
+interface vlan 99
+ip address 10.0.0.2 255.255.255.240
+standby version 2
+standby 1 ip 10.0.0.1
+standby 1 priority 105
+standby 1 preempt
+```
+<p align="center">
+<img src="https://i.imgur.com/ghXifzc.png" height="80%" width="80%" alt="asw-b2"/>
+</p></br>
 
+DSW-A2:
+   ```
+interface vlan 99
+ip address 10.0.0.3 255.255.255.240
+standby version 2
+standby 1 ip 10.0.0.1
+```
+<p align="center">
+<img src="https://i.imgur.com/IpQEeju.png" height="80%" width="80%" alt="asw-b2"/>
+</p></br>
+These configurations access vlan 99, assign an ip address, set Hot Standby Redundancy Protocol version 2 (HSRPv2), and assign the virtual ip address the switches will share. Standby version 1 and two are not compatible, so make sure both switches are using standby version 2 with the command 'standby version 2'. A virtual IP(VIp) address differs from a standard ip address because both switches are going to share the virtual address, in this case the VIp is set with the 'standby1 ip 10.0.0.1' command in hsrp group 1. When configuring HSRP each switch has a priority of 100. The directions ask us to make DSW-A1 the active router by increasing the priority by 5 above default, the command 'standby 1 priority 105' does this. First-hop redundancy protocols(FHRP) are a way of load balancing (if configured), and providing redundancy in the network by having a primary and second router. If the primary router fails or goes down, the secondary router will become the primary router to ensure traffic can still traverse the network. HSRP is a Cisco proprietary FHRP, the active router is elected by the router with the highest priority, in this case DSW-A1 priority of 105, or the router with the highest IP address. In this case, DSW-A2 is the standby router, which will take over forwarding traffic if DSW-A1 fails. The command 'standby preempt' will force an Active election if it comes back online. If this line was not added, and when down, DSW-A2 would become the active route and stay the active router, until it went down or another router joined the standby group with preemption enabled.
+</br>
+These switches can act as routers because they are multilayer switches. They can act as both switches and routers.
+</br>
+</br>
+Step 13. Configure HSRPv2 group 2 for Office A’s PCs subnet (VLAN 10). Make DSW-A1 the Active router by increasing its priority to 5 above the default, and enable preemption on DSW-A1. </br>
+
+- <b>Subnet 10.1.0.0/24</b>
+- <b>VIP: 10.1.0.1</b>
+- <b>DSW-A1: 10.1.0.2</b>
+- <b>DSW-A2: 10.1.0.3</b>
+
+DSW-A1:
+   ```
+interface vlan 10
+ip address 10.1.0.2 255.255.255.0
+standby version 2
+standby 2 ip 10.1.0.1
+standby 2 priority 105
+standby 2 preempt
+```
+<p align="center">
+<img src="https://i.imgur.com/WLTTP9R.png" height="80%" width="80%" alt="v10a1"/>
+</p></br>
+
+DSW-A2:
+   ```
+interface vlan 10
+ip address 10.1.0.3 255.255.255.0
+standby version 2
+standby 2 ip 10.1.0.1
+```
+<p align="center">
+<img src="https://i.imgur.com/hlxsoWA.png" height="80%" width="80%" alt="v10a2"/>
+</p></br>
+These commands do the same thing as step 12 but for the PCs subnet. The standby group is changed to standby group 2 to allow VLAN separation, redundancy, and failover. This also allows for a separate VIP to be assigned just for this specific VLAN. Separating each VLAN into its own standby groups allows network traffic to still flow, if there is a misconfiguration or failure in one VLAN, because each VLAN will have its traffic sent separately from each other VLAN.
+</br>
+</br>
+Step 14. Configure HSRPv2 group 3 for Office A’s Phones subnet (VLAN 20). Make DSW-A2 the Active router by increasing its priority to 5 above the default, and enable preemption on DSW-A2. </br>
+-<b>Subnet: 10.2.0.0/24</b> 
+-<b>VIP: 10.2.0.1</b>
+-<b>DSW-A1: 10.2.0.2</b>
+-<b>DSW-A2: 10.2.0.3</b>
+
+DSW-A1:
+   ```
+interface vlan 20
+ip address 10.2.0.2 255.255.255.0
+standby version 2
+standby 3 ip 10.2.0.1
+
+```
+<p align="center">
+<img src="https://i.imgur.com/ufOBlry.png" height="80%" width="80%" alt="v20a1"/>
+</p></br>
+
+DSW-A2:
+   ```
+interface vlan 20
+ip address 10.2.0.3 255.255.255.0
+standby version 2
+standby 3 ip 10.2.0.1
+standby 3 priority 105
+standby 3 preempt
+```
+<p align="center">
+<img src="https://i.imgur.com/ImSobvT.png" height="80%" width="80%" alt="v20a1"/>
+</p></br>
+These configurations perform the same function but with updated IP addresses and making DSW-A2 the Active router and DSW-A1 the standby router. This is the first example of how HSRPv2 can provide load balancing. The Phones subnet will prioritize sending traffic via DSW-A2 instead of DSW-A1 like the management and pcs subnet.
+</br>
+</br>
+Step 15. Configure HSRPv2 group 4 for Office A’s Wi-Fi subnet (VLAN 40). Make DSW-A2 the Active router by increasing its priority to 5 above the default, and enable preemption on DSW-A2.</br>
+
+- <b>Subnet: 10.6.0.0/24</b>
+- <b>VIP: 10.6.0.1  </b>
+- <b>DSW-A1: 10.6.0.2</b>
+- <b>>DSW-A2: 10.6.0.3</b>
+
+DSW-A1:
+   ```
+interface vlan 40
+ip address 10.6.0.2 255.255.255.0
+standby version 2
+standby 4 ip 10.6.0.1
+
+```
+<p align="center">
+<img src="https://i.imgur.com/G6O3f7F.png" height="80%" width="80%" alt="v20a1"/>
+</p></br>
+
+DSW-A2:
+   ```
+interface vlan 40
+ip address 10.6.0.3 255.255.255.0
+standby version 2
+standby 4 ip 10.6.0.1
+standby 4 priority 105
+standby 4 preempt
+```
+<p align="center">
+<img src="https://i.imgur.com/iCK2dFA.png" height="80%" width="80%" alt="v20a1"/>
+</p></br>
+Wi-Fi traffic (VLAN 40) will utilize DSW-A2 as the primary router, and DSW-A1 as the standby router. We can also see the Wi-Fi subnet will allow 244 hosts because of the /24 subnet mask. While in the previous configurations, the VLANs would only allow 14 hosts per subnet because of the /28 subnet mask. I hope this shows how HSRP provides redundancy, fail-over, and load balancing which are all good things to build into your network. Networks are expected to run 24/7, building redundancy into the network is how to do so. We are done configuring HSRP for Office A.
+</br>
+</br>
+Step 16: Configure HSRPv2 group 1 for Office B’s Management subnet (VLAN 99). Make DSW-B1 the Active router by increasing its priority to 5 above the default, and enable preemption on DSW-B1.</br>
+
+- <b>Subnet: 10.0.0.16/28</b>
+- <b>VIP: 10.0.0.17</b>
+- <b>DSW-B1: 10.0.0.18</b>
+- <b>DSW-B2: 10.0.0.19</b>
+
+DSW-B1:
+
+   ```
+interface vlan 99
+ip address 10.0.0.18 255.255.255.240
+standby version 2
+standby 1  ip 10.0.0.17
+standby 1 priority 105
+standby 1 preempt
+```
+<p align="center">
+<img src="https://i.imgur.com/B28PcDG.png" height="80%" width="80%" alt="v20a1"/>
+</p></br>
+
+DSW-B2:
+  ```
+interface vlan 99
+ip address 10.0.0.19 255.255.255.240
+standby version 2
+standby 1 ip 10.0.0.17
+```
+<p align="center">
+<img src="https://i.imgur.com/xtX7W5x.png" height="80%" width="80%" alt="v20a1"/>
+</p></br>
+These configurations are similar to step 11 but in the Office B network. DSW-B1 Active, DSW-B2 standby for the Management VLAN
+</br>
+</br>
+Step 17. Configure HSRPv2 group 2 for Office B’s PCs subnet (VLAN 10). Make DSW-B1 the active router by increasing its priority to 5 above the default, and enable preemption on DSW-B1.</br>
+
+- <b>Subnet: 10.3.0.0/24</b>
+- <b>VIP: 10.3.0.1</b>
+- <b>DSW-B1: 10.3.0.2</b>
+- <b>DSW-B2: 10.3.0.3</b>
+
+DSW-B1:
+
+   ```
+interface vlan 10
+ip address 10.3.0.2 255.255.255.0
+standby version 2
+standby 2  ip 10.3.0.1
+standby 2 priority 105
+standby 2 preempt
+```
+
+DSW-B2:
+  ```
+interface vlan 10
+ip address 10.3.0.3 255.255.255.0
+standby version 2
+standby 2 ip 10.3.0.1
+```
 
 
 
