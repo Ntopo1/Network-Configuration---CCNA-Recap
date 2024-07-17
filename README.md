@@ -23,7 +23,7 @@
 </p><br />  
 <br />
 <h3>Part 1: Initial Setup</h3>
-Step 1: Configure appropriate hostnames for each router and switch
+<h4>Step 1: Configure appropriate hostnames for each router and switch</h4>
 <br/>
   
   ```
@@ -43,7 +43,7 @@ exit
 <align="left">In packet tracer, you can access a network device's CLI by double-clicking the device and then clicking the CLI tab. The hostname is configured from the Global config mode. The 'enable' command allows the user to access privileged Exec mode indicated by #. The 'configure terminal' command allows the user to access Global Exec mode, indicated by (config#) 
 <br />
 <br />
-Step 2: Configure the enable secret jeremysitlab on each router and switch. Use type 9 hashing if available; otherwise, use type 5.
+<h4>Step 2: Configure the enable secret jeremysitlab on each router and switch. Use type 9 hashing if available; otherwise, use type 5.</h4>
 <br /> 
 
   ```
@@ -64,7 +64,7 @@ enable secret jeremysitlab
 <align="left">The 'enable secret' and 'enable algorithm-type script secret' commands each provide an added layer of security. These commands set a password for entering privileged EXEC mode, which is stored in a hashed format for security. The enable algorithm-type script secret command, or the type 9 hashing, provides the most secure hashing algorithm on current Cisco devices, but it's not supported on every device type. Type 5 hashing, used by the enable secret command, sets an MD5 hashed password on the device; it's considered less secure than level 9. Using hashing algorithms with passwords is always a good security practice. Even though MD5 hashing is no longer secure, it adds another layer of complexity for someone who may be attempting to tamper with the device. 
 <br />
 <br />
-Step 3: Configure the user account cisco with secret ccna on each router and switch. Use type 9 hashing if available; otherwise, use type 5 <br/>
+<h4>Step 3: Configure the user account cisco with secret ccna on each router and switch. Use type 9 hashing if available; otherwise, use type 5 </h4><br/>
 
    ```
 username cisco algorithm-type script secret ccna
@@ -85,8 +85,9 @@ username cisco secret ccna
 These commands create a local user account with a username 'cisco' and an encrypted password 'ccna'. Level 9 hashing of the password is preferred, but it is not supported on all devices. When the command 'username cisco algorithm-type script secret ccna' is not accepted on the device, the next preferred option for this lab is 'username cisco secret ccna'.
 <br />
 <br />
-Step 4: Configure the console line to require login with a local user account. Set a 30-minute inactivity timeout. Enable synchronous logging.<br/>
-
+<h4>Step 4: Configure the console line to require login with a local user account. Set a 30-minute inactivity timeout. Enable synchronous logging.</h4>
+<br/>
+  
   ```
 line console 0
   login local
@@ -102,7 +103,8 @@ The 'line console 0' command is used to enter the console line configuration mod
 <br /> 
 
 <h3>Part 2: VLANs, Layer-2 EtherChannel</h3>
-Step 1: Configure a Layer-2 EtherChannel named PortChannel1 between DSW-A1 and DSW-A2 using a Cisco-proprietary protocol. Both switches should actively try to form an EtherChannel. <br/>
+<h4>Step 1: Configure a Layer-2 EtherChannel named PortChannel1 between DSW-A1 and DSW-A2 using a Cisco-proprietary protocol. Both switches should actively try to form an EtherChannel.</h4> 
+<br/>
 
   ```
 interface range g1/0/4-5
@@ -116,7 +118,7 @@ interface range g1/0/4-5
 This command configures a Layer 2 EtherChannel on a Cisco switch using the Port Aggregation Protocol (PAgP). PAgP is a Cisco proprietary protocol used to form an EtherChannel. EtherChannels bundle multiple physical links into a single logical link, providing redundancy, load balancing, and simplified network management, along with other benefits. The interface range command allows for grouping interfaces to be configured simultaneously, rather than configuring each interface individually. The 'channel-protocol pagp' line sets PAgP as the EtherChannel negotiation protocol for the group of interfaces; however, this line is not necessary. Finally, 'channel-group 1 mode desirable' adds the selected interfaces to EtherChannel group 1 in desirable mode, which actively tries to form an EtherChannel using PAgP. These commands need to be entered on both DSW-A1 and DSW-A2 only.
 <br /> 
 <br /> 
-Step 2: Configure a Layer-2 EtherChannel named PortChannel1 between DSW-B1 and DSW-B2 using an open standard protocol. Both switches should actively try to form an EtherChannel.<br />
+<h4>Step 2: Configure a Layer-2 EtherChannel named PortChannel1 between DSW-B1 and DSW-B2 using an open standard protocol. Both switches should actively try to form an EtherChannel.</h4><br />
 
   ```
 interface range g1/0/4-5
@@ -130,7 +132,8 @@ interface range g1/0/4-5
 This command configures a Layer 2 EtherChannel on a switch using the Ling Aggregation Protocol (LACP). LACP is an open standard protocol used to form an EtherChannel, LACP is defined in the IEEE 802.3ad.  The 'channel-protocol lacp' line sets LACP as the EtherChannel negotiation protocol for the group of interfaces; it is not necessary. Finally, 'channel-group 1 mode active' adds the selected interfaces to EtherChannel group 1 in active mode, which actively tries to form an EtherChannel using LACP. These commands need to be entered on both DSW-B1 and DSW-B2 only.
 <br /> 
 <br /> 
-Step 3: Configure all links between Access and Distribution switches, including the EtherChannels, as trunk links. Disable DTP on all ports. Set each trunk's native VLAN to VLAN 1000(unused). In Office A, allow VLANs 10, 20, 40, and 99 on all trunks.In Office B, allow VLANs 10, 20, 30, and 99 on all trunks.<br />
+<h4>Step 3: Configure all links between Access and Distribution switches, including the EtherChannels, as trunk links. Disable DTP on all ports. Set each trunk's native VLAN to VLAN 1000(unused). In Office A, allow VLANs 10, 20, 40, and 99 on all trunks.In Office B, allow VLANs 10, 20, 30, and 99 on all trunks.</h4>
+<br />
   
 Office A Access Layer:
   ```
@@ -193,8 +196,9 @@ The Office A commands are used on switches DSW-A1 and DSW-A2, while the Office B
 <br /> 
 <br /> 
 
-Step 4: Configure one of each office’s Distribution switches as a VTPv2 server. Use the domain name JeremysITLab. Verify that other switches join the domain. Configure all Access switches as VTP clients.
+<h4>Step 4: Configure one of each office’s Distribution switches as a VTPv2 server. Use the domain name JeremysITLab. Verify that other switches join the domain. Configure all Access switches as VTP clients.</h4>
 Distribution Layer Switches:
+
   ```
 vtp domain JeremysITLab
 vtp version 2
@@ -217,7 +221,8 @@ vtp version 2
 <align="left"> The command 'vtp mode client' changes the VTP permissions for the switch. VTP client switches receive VLAN information from VTP servers and apply it to their configuration. They cannot create, modify, or delete VLANs. The command 'vtp domain JeremysITLab' joins the switch to a VTP domain named JeremysITLab, allowing it to share VTP information with other switches in the same domain. The command 'vtp version 2' ensures that each switch utilizes the same version of VTP. These commands should be repeated on the access layer switches: ASW-A1, ASW-A2, ASW-A3, ASW-B1, ASW-B2, and ASW-B3.
 <br />
 <br />
-Step 5: In Office A, create and name the following VLANs on one of the Distribution switches. Ensure that VTP propagates the change. VLAN 10: PCs. LAN 20: Phones. VLAN 40: Wi-Fi. VLAN 99: Management.<br/>
+<h4>Step 5: In Office A, create and name the following VLANs on one of the Distribution switches. Ensure that VTP propagates the change. VLAN 10: PCs. LAN 20: Phones. VLAN 40: Wi-Fi. VLAN 99: Management.</h4>
+<br/>
 Office A:
   
   ```
@@ -236,7 +241,7 @@ name Management
 <align="left">The command 'vlan 10' creates a VLAN with that number. Then the 'name PCs' command names that vlan. These commands need to be entered on one of Office A's VTP server switches, either DSW-A1 or DSW-A2. It will send VTP advertisements to other members of the same VTP domain. VTP advertisements are only shared via trunks, currently, the configurations between the distribution layer and core layers are access ports, so VTP information in Office A will not be shared with Office B and vice versa.
 <br />
 <br />
-Step 6: In Office B, create and name the following VLANs on one of the Distribution switches. Ensure that VTP propagates the change. VLAN 10: PCs. LAN 20: Phones. VLAN 30: Servers. VLAN 99: Management.<br/>
+<h4>Step 6: In Office B, create and name the following VLANs on one of the Distribution switches. Ensure that VTP propagates the change. VLAN 10: PCs. LAN 20: Phones. VLAN 30: Servers. VLAN 99: Management.</h4><br/>
 Office B:
   
   ```
@@ -256,7 +261,8 @@ name Management
 <align="left">The above commands create and name each VLAN in Office B. The above command only needs to be entered on one of the VTP servers. VTP advertisements will be sent to each of the other switches within the VTP domain in Office B.
 <br />
 <br />
-Step 7: Configure each Access switch’s access port. LWAPs will not use FlexConnect. PCs in VLAN 10, Phones in VLAN 20. SRV1 in VLAN 30. Manually configure access mode and explicitly disable DTP.<br/>
+<h4>Step 7: Configure each Access switch’s access port. LWAPs will not use FlexConnect. PCs in VLAN 10, Phones in VLAN 20. SRV1 in VLAN 30. Manually configure access mode and explicitly disable DTP.</h4>
+<br/>
 
  ASW-A1 and ASW-B1 
   ```
@@ -296,7 +302,8 @@ switchport access vlan 30
 <align="left"> This image shows the output of 'show vlan brief' with interface fa0/1 in Server VLAN.
 <br />
 <br />
-Step 8: Configure ASW-A1’s connection to WLC1.  It must support the Wi-Fi and Management VLANs. The Management VLAN should be untagged. Disable DTP.
+<h4>Step 8: Configure ASW-A1’s connection to WLC1.  It must support the Wi-Fi and Management VLANs. The Management VLAN should be untagged. Disable DTP.</h4>
+<br />
 
  Office A ASW-A1
   ```
@@ -309,7 +316,8 @@ switchport nonegotiate
 <align="left"> These commands have already been explained in previous steps. This command is only entered on ASW-A1, in Office A, which connects to the WLC. Interface f0/2 is connected to WLC1 and it needs to support multiple VLANS so it is configured as a trunk. It needs access to Wi-Fi VLAN and the management VLAN so both are allowed over the trunk with the 'switchport trunk allowed vlan 40,99'. We are asked to have the management VLAN traffic be untagged, so the native VLAN for the trunk is assigned to VLAN 99, the Management VLAN. And we are asked to disable DTP, so the 'switchport nonegotiate' command is issued.
 <br />
 <br />
-Step 9:  Administratively disable all unused ports on the Access and Distribution switches.
+<h4>Step 9:  Administratively disable all unused ports on the Access and Distribution switches.</h4>
+<br />
 Access and Distribution Layer Switches:
 
   ```
@@ -324,11 +332,12 @@ shutdown
 <img src="https://i.imgur.com/AsosK2s.png" height="80%" width="80%" alt="Shutdown interfaces"/>
 </p><br />
 <align="left"> Shutting down all unused ports is a good security practice. Switches will automatically allow new physical connections to the switch to connect to the network. Administratively shutting down the interface, will not allow access to the network. This step needs to be repeated on each switch in Office A and Office B: ASW-A1, ASW-A2, ASW-A3, ASW-B1, ASW-B2, ASW-B3, DSW-A2, DSW-B1 and DSW-B2. The 'show interfaces status' command should be used on each switch to determine which interfaces to use with the 'interface range' command.
-
-
+<br />
+<br />
   
 <h3>Part 3: IP Addresses, Layer-3 EtherChannel, HSRP </h3>
-Step 1: Configure the following IP addresses on R1’s interfaces and enable them:<br />
+<h4>Step 1: Configure the following IP addresses on R1’s interfaces and enable them:</h4>
+<br />
 
 - <b>G0/0/0: DHCP client</b>
 - <b>G0/1/0: DHCP client</b>
@@ -364,9 +373,10 @@ From Global Configuration mode, enter the command 'interface `<interface #>`' to
 <p align="center">
 <img src="https://i.imgur.com/SAq9sCL.png" height="80%" width="80%" alt="R1 ipv4 interfaces"/>
 </p>
-</br>
-</br>
-Step 2: Enable IPv4 routing on all Core and Distribution switches<br />
+<br />
+<br />
+<h4>Step 2: Enable IPv4 routing on all Core and Distribution switches</h4>
+<br />
 
  ```
 ip routing
@@ -376,9 +386,9 @@ ip routing
 <img src="https://i.imgur.com/jdaNlgB.png" height="80%" width="80%" alt="ip routing"/>
 </p>
 <p><align="left">This command needs to be entered on all core and distribution switches: CSW1, CSW2, DSW-A1, DSW-A2, DSW-B1, and DSW-B2. Switches, by default, utilize Layer 2 addressing (MAC addresses). They do not use or need IP addresses or have an IP routing table. These core and distribution switches are all Layer 3 or multilayer switches. The command ip routing allows each of these switches to utilize Layer 3 addressing (IP protocols) while maintaining their Layer 2 functions. Now they can build IP routing tables.
-</br>
-</br>
-Step 3: Create a Layer-3 EtherChannel between CSW1 and CSW2 using a Cisco-proprietary protocol. Both switches should actively try to form an EtherChannel. Configure the following IP addresses:<br />
+<br />
+<br />
+<h4>Step 3: Create a Layer-3 EtherChannel between CSW1 and CSW2 using a Cisco-proprietary protocol. Both switches should actively try to form an EtherChannel. Configure the following IP addresses:</h4>
 
 - <b>CSW1 PortChannel1: 10.0.0.41/30</b>
 - <b>CSW2 PortChannel1: 10.0.0.42/30</b>
@@ -403,11 +413,11 @@ ip address 10.0.0.42 255.255.255.252
 ```
 <p align="center">
 <img src="https://i.imgur.com/44CGceb.png" height="80%" width="80%" alt="ip routing"/>
-</p></br>
+</p><br />
 <align="left">The above commands create a Layer 3 EtherChannel using PAgP. The first line of the command groups the interfaces in interface configuration mode. The command 'no switchport' disables Layer 2 addressing on the ports, turning them into Layer 3 ports. The command 'channel-group 1 mode desirable' creates an EtherChannel port using PAgP mode desirable, which actively tries to create an EtherChannel. The final two lines, starting with 'interface po1', enter configuration mode for the PortChannel 1 interface and assign an IP address so the EtherChannel can communicate with other Layer 3 network devices.
-</br>
-</br>
-Step 4: Configure the following IP addresses on CSW1: </br>
+<br />
+<br />
+</h4>Step 4: Configure the following IP addresses on CSW1:</h4>
   
 - <b>G1/0/1: 10.0.0.34/30</b>  
 - <b>G1/1/1: 10.0.0.45/30</b>
@@ -439,9 +449,9 @@ shutdown
 <p><align="left">These commands assign IP addresses to individual interfaces. The command 'show ip int br | include unassigned' was used to identify which interfaces are not being used before entering the interface range. Interfaces g1/0/2-3 were excluded from the shutdown command as they are used for the EtherChannel. It is good security practice to administratively shut down switch interfaces that are not in use. Additionally, moving these switches to an unused VLAN, enabling port security, and disabling CDP or LLDP are also good security measures for unused ports. The IP Interface brief should now look like this :
 <p align="center">
 <img src="https://i.imgur.com/KKH5Ieq.png" height="80%" width="80%" alt="ip routing"/>
-</p></br>
-</br>
-Step 5: Configure the following IP addresses on CSW2: </br>
+</p><br />
+<br />
+<h4>Step 5: Configure the following IP addresses on CSW2:</h4>
   
 - <b>G1/0/1: 10.0.0.38/30</b>  
 - <b>G1/1/1: 10.0.0.61/30</b>
@@ -473,9 +483,9 @@ shutdown
 <p><align="left">Same commands for CSW1, but the IP addresses have been updated. It's a good security practice to administratively shut down switch interfaces that are not being used. Additionally, moving these switches to an unused VLAN, enabling port security, and disabling CDP or LLDP are also good security measures for unused ports. The IP Interface brief should now look like this :
 <p align="center">
 <img src="https://i.imgur.com/kucSUUK.png" height="80%" width="80%" alt="ip routing"/>
-</p></br>
-</br>
-Step 6: Configure the following IP addresses on DSW-A1: </br>
+</p><br />
+<br />
+<h4>Step 6: Configure the following IP addresses on DSW-A1:</h4>
   
 - <b>G1/1/1: 10.0.0.46/30</b>
 - <b>G1/1/2: 10.0.0.62/30/<b> 
@@ -494,8 +504,8 @@ ip address 10.0.0.79 255.255.255.255
 <p><align="left">These are the IP interface configurations for DSW-A1. The IP Interface brief should now look like this :
 <p align="center">
 <img src="https://i.imgur.com/a7fl291.png" height="80%" width="80%" alt="dsw-A1"/>
-</p></br>
-Step 7: Configure the following IP addresses on DSW-A2: </br>
+</p><br />
+<h4>Step 7: Configure the following IP addresses on DSW-A2: </h4>
   
 - <b>G1/1/1: 10.0.0.50/30</b>
 - <b>G1/1/2: 10.0.0.66/30</b>
@@ -515,9 +525,9 @@ ip address 10.0.0.80 255.255.255.255
 <p><align="left">Entering these IP addresses is very tedious, but they must be all entered correctly along with correct netmasks. The IP Interface brief should now look like this :
 <p align="center">
 <img src="https://i.imgur.com/xdU65i8.png" height="80%" width="80%" alt="dsw-a2"/>
-</p></br>
-</br>
-Step 8: Configure the following IP addresses on DSW-B1: </br>
+</p><br />
+<br />
+<h4>Step 8: Configure the following IP addresses on DSW-B1:</h4>
   
 - <b>G1/1/1: 10.0.0.54/30</b>
 - <b>G1/1/2: 10.0.0.70/30</b>
@@ -536,9 +546,10 @@ ip address 10.0.0.81 255.255.255.255
 <p><align="left"> The IP Interface brief on DSW-B1 should now look like this :
 <p align="center">
 <img src="https://i.imgur.com/nJ4M81r.png" height="80%" width="80%" alt="dsw-b1"/>
-</p></br>
-</br>
-Step 9: Configure the following IP addresses on DSW-B2: </br>
+</p><br />
+<br />
+<h4>Step 9: Configure the following IP addresses on DSW-B2: </h4>
+<br />
   
 - <b>G1/1/1: 10.0.0.58/30</b>
 - <b>G1/1/2: 10.0.0.74/30</b>
@@ -560,22 +571,22 @@ I made typos while entering some of these interface configurations, so it's good
 The IP Interface brief on DSW-B2 should now look like this :
 <p align="center">
 <img src="https://i.imgur.com/7ut7p1V.png" height="80%" width="80%" alt="dsw-b2"/>
-</p></br>
-</br>
-Step 10: Manually configure SRV1’s IP settings: </br>
+</p><br />
+<br />
+<h4>Step 10: Manually configure SRV1’s IP settings:</h4> 
   
 - <b>Default Gateway: 10.5.0.1</b>
 - <b>IPv4 Address: 10.5.0.4</b>
 - <b>Subnet Mask: 255.255.255.0</b>
   
 To enter the configuration setting on end hosts, in packet tracer, you must use the GUI to manually set the configuration.
-</br>
+<br />
 <p align="center">
 <img src="https://i.imgur.com/RII6kW3.png" height="80%" width="80%" alt="SRV1"/>
 <img src="https://i.imgur.com/CDEaAJB.png" height="80%" width="80%" alt="SRV1"/>
-</p></br>
-</br>
-Step 11: Configure the following management IP addresses on the Access switches (interface VLAN 99):</br>
+</p><br />
+<br />
+<h4>Step 11: Configure the following management IP addresses on the Access switches (interface VLAN 99):</h4>
 
 - <b>ASW-A1: 10.0.0.4/28</b>
 - <b>ASW-A2: 10.0.0.5/28</b>
@@ -583,7 +594,8 @@ Step 11: Configure the following management IP addresses on the Access switches 
 - <b>ASW-B1: 10.0.0.20/28</b>
 - <b>ASW-B2: 10.0.0.21/28</b>
 - <b>ASW-B3: 10.0.0.22/28</b>
-And configure the appropriate subnet’s first usable address as the default gateway.</br>
+
+And configure the appropriate subnet’s first usable address as the default gateway.<br />
 
 ```
 ip default-gateway 10.0.0.1
@@ -606,7 +618,7 @@ ip address 10.0.0.6 255.255.255.240
 ```
 <p align="center">
 <img src="https://i.imgur.com/V1VATBg.png" height="80%" width="80%" alt="asw-a2"/>
-</p></br>
+</p><br />
 ASW-B1:
 
   ```
@@ -632,16 +644,16 @@ ip address 10.0.0.22 255.255.255.240
 ```
 <p align="center">
 <img src="https://i.imgur.com/n4MbmL8.png" height="80%" width="80%" alt="asw-b2"/>
-</p></br>
+</p><br />
 <align="left">These interface configurations create virtual interfaces that allow the management VLAN to communicate with these access layer, layer 2 switches. The 'default-gateway' command is added to the configuration because layer 2 switches do not have routing tables, they do not know where to send ip traffic. The 'default-gateway' command tells the switch where to forward IP traffic. Switches in Office A and Office B have different default gateway addresses because each office has a netmask of /28 meaning there are 16 total addresses. For office A, 10.0.0.0 is the network address and 10.0.0.15 is the broadcast address making 10.0.0.1 the first usable address. For Office B, 10.0.0.16 is the network address and 10.0.0.31 is the broadcast address making 10.0.0.17 the first usable address.
 <br />
 <br />
-Step 12: Configure HSRPv2 group 1 for Office A’s Management subnet (VLAN 99). Make DSW-A1 the Active router by increasing its priority to 5 above the default, and enable preemption on DSW-A1.</br>
+<h4>Step 12: Configure HSRPv2 group 1 for Office A’s Management subnet (VLAN 99). Make DSW-A1 the Active router by increasing its priority to 5 above the default, and enable preemption on DSW-A1.</h4>
   
-  -<b>Subnet: 10.0.0.0/28</b> 
-  -<b>VIP: 10.0.0.1</b> 
-  -<b>DSW-A1: 10.0.0.2</b> 
-  -<b>DSW-A2: 10.0.0.3</b>
+  - <b>Subnet: 10.0.0.0/28</b> 
+  - <b>VIP: 10.0.0.1</b> 
+  - <b>DSW-A1: 10.0.0.2</b> 
+  - <b>DSW-A2: 10.0.0.3</b>
   
  DSW-A1:
    ```
@@ -654,7 +666,7 @@ standby 1 preempt
 ```
 <p align="center">
 <img src="https://i.imgur.com/ghXifzc.png" height="80%" width="80%" alt="asw-b2"/>
-</p></br>
+</p><br />
 
 DSW-A2:
    ```
@@ -665,13 +677,13 @@ standby 1 ip 10.0.0.1
 ```
 <p align="center">
 <img src="https://i.imgur.com/IpQEeju.png" height="80%" width="80%" alt="asw-b2"/>
-</p></br>
+</p><br />
 These configurations access vlan 99, assign an ip address, set Hot Standby Redundancy Protocol version 2 (HSRPv2), and assign the virtual ip address the switches will share. Standby version 1 and two are not compatible, so make sure both switches are using standby version 2 with the command 'standby version 2'. A virtual IP(VIp) address differs from a standard ip address because both switches are going to share the virtual address, in this case the VIp is set with the 'standby1 ip 10.0.0.1' command in hsrp group 1. When configuring HSRP each switch has a priority of 100. The directions ask us to make DSW-A1 the active router by increasing the priority by 5 above default, the command 'standby 1 priority 105' does this. First-hop redundancy protocols(FHRP) are a way of load balancing (if configured), and providing redundancy in the network by having a primary and second router. If the primary router fails or goes down, the secondary router will become the primary router to ensure traffic can still traverse the network. HSRP is a Cisco proprietary FHRP, the active router is elected by the router with the highest priority, in this case DSW-A1 priority of 105, or the router with the highest IP address. In this case, DSW-A2 is the standby router, which will take over forwarding traffic if DSW-A1 fails. The command 'standby preempt' will force an Active election if it comes back online. If this line was not added, and when down, DSW-A2 would become the active route and stay the active router, until it went down or another router joined the standby group with preemption enabled.
-</br>
+<br />
 These switches can act as routers because they are multilayer switches. They can act as both switches and routers.
-</br>
-</br>
-Step 13. Configure HSRPv2 group 2 for Office A’s PCs subnet (VLAN 10). Make DSW-A1 the Active router by increasing its priority to 5 above the default, and enable preemption on DSW-A1. </br>
+<br />
+<br />
+<h4>Step 13. Configure HSRPv2 group 2 for Office A’s PCs subnet (VLAN 10). Make DSW-A1 the Active router by increasing its priority to 5 above the default, and enable preemption on DSW-A1.</h4> 
 
 - <b>Subnet 10.1.0.0/24</b>
 - <b>VIP: 10.1.0.1</b>
@@ -689,7 +701,7 @@ standby 2 preempt
 ```
 <p align="center">
 <img src="https://i.imgur.com/WLTTP9R.png" height="80%" width="80%" alt="v10a1"/>
-</p></br>
+</p><br />
 
 DSW-A2:
    ```
@@ -700,15 +712,16 @@ standby 2 ip 10.1.0.1
 ```
 <p align="center">
 <img src="https://i.imgur.com/hlxsoWA.png" height="80%" width="80%" alt="v10a2"/>
-</p></br>
+</p><br />
 These commands do the same thing as step 12 but for the PCs subnet. The standby group is changed to standby group 2 to allow VLAN separation, redundancy, and failover. This also allows for a separate VIP to be assigned just for this specific VLAN. Separating each VLAN into its own standby groups allows network traffic to still flow, if there is a misconfiguration or failure in one VLAN, because each VLAN will have its traffic sent separately from each other VLAN.
-</br>
-</br>
-Step 14. Configure HSRPv2 group 3 for Office A’s Phones subnet (VLAN 20). Make DSW-A2 the Active router by increasing its priority to 5 above the default, and enable preemption on DSW-A2. </br>
--<b>Subnet: 10.2.0.0/24</b> 
--<b>VIP: 10.2.0.1</b>
--<b>DSW-A1: 10.2.0.2</b>
--<b>DSW-A2: 10.2.0.3</b>
+<br />
+<br />
+<h4>Step 14. Configure HSRPv2 group 3 for Office A’s Phones subnet (VLAN 20). Make DSW-A2 the Active router by increasing its priority to 5 above the default, and enable preemption on DSW-A2.</h4>
+
+- <b>Subnet: 10.2.0.0/24</b> 
+- <b>VIP: 10.2.0.1</b>
+- <b>DSW-A1: 10.2.0.2</b>
+- <b>DSW-A2: 10.2.0.3</b>
 
 DSW-A1:
    ```
@@ -720,7 +733,7 @@ standby 3 ip 10.2.0.1
 ```
 <p align="center">
 <img src="https://i.imgur.com/ufOBlry.png" height="80%" width="80%" alt="v20a1"/>
-</p></br>
+</p><br />
 
 DSW-A2:
    ```
@@ -733,11 +746,11 @@ standby 3 preempt
 ```
 <p align="center">
 <img src="https://i.imgur.com/ImSobvT.png" height="80%" width="80%" alt="v20a1"/>
-</p></br>
+</p><br />
 These configurations perform the same function but with updated IP addresses and making DSW-A2 the Active router and DSW-A1 the standby router. This is the first example of how HSRPv2 can provide load balancing. The Phones subnet will prioritize sending traffic via DSW-A2 instead of DSW-A1 like the management and pcs subnet.
-</br>
-</br>
-Step 15. Configure HSRPv2 group 4 for Office A’s Wi-Fi subnet (VLAN 40). Make DSW-A2 the Active router by increasing its priority to 5 above the default, and enable preemption on DSW-A2.</br>
+<br />
+<br />
+<h4>Step 15. Configure HSRPv2 group 4 for Office A’s Wi-Fi subnet (VLAN 40). Make DSW-A2 the Active router by increasing its priority to 5 above the default, and enable preemption on DSW-A2.</h4>
 
 - <b>Subnet: 10.6.0.0/24</b>
 - <b>VIP: 10.6.0.1  </b>
@@ -754,7 +767,7 @@ standby 4 ip 10.6.0.1
 ```
 <p align="center">
 <img src="https://i.imgur.com/G6O3f7F.png" height="80%" width="80%" alt="v20a1"/>
-</p></br>
+</p><br />
 
 DSW-A2:
    ```
@@ -767,11 +780,11 @@ standby 4 preempt
 ```
 <p align="center">
 <img src="https://i.imgur.com/iCK2dFA.png" height="80%" width="80%" alt="v20a1"/>
-</p></br>
+</p><br />
 Wi-Fi traffic (VLAN 40) will utilize DSW-A2 as the primary router, and DSW-A1 as the standby router. We can also see the Wi-Fi subnet will allow 244 hosts because of the /24 subnet mask. While in the previous configurations, the VLANs would only allow 14 hosts per subnet because of the /28 subnet mask. I hope this shows how HSRP provides redundancy, fail-over, and load balancing which are all good things to build into your network. Networks are expected to run 24/7, building redundancy into the network is how to do so. We are done configuring HSRP for Office A.
-</br>
-</br>
-Step 16: Configure HSRPv2 group 1 for Office B’s Management subnet (VLAN 99). Make DSW-B1 the Active router by increasing its priority to 5 above the default, and enable preemption on DSW-B1.</br>
+<br />
+<br />
+<h4>Step 16: Configure HSRPv2 group 1 for Office B’s Management subnet (VLAN 99). Make DSW-B1 the Active router by increasing its priority to 5 above the default, and enable preemption on DSW-B1.</h4>
 
 - <b>Subnet: 10.0.0.16/28</b>
 - <b>VIP: 10.0.0.17</b>
@@ -790,7 +803,7 @@ standby 1 preempt
 ```
 <p align="center">
 <img src="https://i.imgur.com/B28PcDG.png" height="80%" width="80%" alt="v20a1"/>
-</p></br>
+</p><br />
 
 DSW-B2:
   ```
@@ -801,11 +814,11 @@ standby 1 ip 10.0.0.17
 ```
 <p align="center">
 <img src="https://i.imgur.com/xtX7W5x.png" height="80%" width="80%" alt="v20a1"/>
-</p></br>
+</p><br />
 These configurations are similar to step 11 but in the Office B network. DSW-B1 Active, DSW-B2 standby for the Management VLAN
-</br>
-</br>
-Step 17. Configure HSRPv2 group 2 for Office B’s PCs subnet (VLAN 10). Make DSW-B1 the active router by increasing its priority to 5 above the default, and enable preemption on DSW-B1.</br>
+<br />
+<br />
+<h4>Step 17. Configure HSRPv2 group 2 for Office B’s PCs subnet (VLAN 10). Make DSW-B1 the active router by increasing its priority to 5 above the default, and enable preemption on DSW-B1.</h4>
 
 - <b>Subnet: 10.3.0.0/24</b>
 - <b>VIP: 10.3.0.1</b>
@@ -824,7 +837,7 @@ standby 2 preempt
 ```
 <p align="center">
 <img src="https://i.imgur.com/spcqYvd.png" height="80%" width="80%" alt="v20a1"/>
-</p></br>
+</p><br />
 
 DSW-B2:
   ```
@@ -834,9 +847,9 @@ standby version 2
 standby 2 ip 10.3.0.1
 ```
 These are the same configurations as step 13, but in the 10.3.0.0 subnet, allowing 244 hosts in Office B. DSW-B1 is the active router and DSW-B2 is standby router in the PCs subnet.
-</br>
-</br>
-Step 18. Configure HSRPv2 group 3 for Office B’s Phones subnet (VLAN 20). Make DSW-B2 the Active router by increasing its priority to 5 above the default, and enable preemption on DSW-B2.</br>
+<br />
+<br />
+<h4>Step 18. Configure HSRPv2 group 3 for Office B’s Phones subnet (VLAN 20). Make DSW-B2 the Active router by increasing its priority to 5 above the default, and enable preemption on DSW-B2.</h4>
 
 - <b>Subnet: 10.4.0.0/24</b>
 - <b>VIP: 10.4.0.1</b>
@@ -853,7 +866,7 @@ standby 3  ip 10.4.0.1
 ```
 <p align="center">
 <img src="https://i.imgur.com/vAbl9pt.png" height="80%" width="80%" alt="v20a1"/>
-</p></br>
+</p><br />
 
 DSW-B2:
    ```
@@ -866,11 +879,11 @@ standby 3 preempt
 ```
 <p align="center">
 <img src="https://i.imgur.com/ubUXDkr.png" height="80%" width="80%" alt="v20a1"/>
-</p></br>
+</p><br />
 Another example of load balancing. The Phones subnet will use DSW-B2 as the active router, and DSW-B1 as the standby router.
-</br>
-</br>
-Step 19. Configure HSRPv2 group 4 for Office B’s Servers subnet (VLAN 30). Make DSW-B2 the Active router by increasing its priority to 5 above the default, and enable preemption on DSW-B2.</br>
+<br />
+<br />
+<h4>Step 19. Configure HSRPv2 group 4 for Office B’s Servers subnet (VLAN 30). Make DSW-B2 the Active router by increasing its priority to 5 above the default, and enable preemption on DSW-B2.</h4>
 
 - <b>Subnet: 10.5.0.0/24</b>
 - <b>VIP: 10.5.0.1</b>
@@ -887,7 +900,7 @@ standby 4  ip 10.5.0.1
 ```
 <p align="center">
 <img src="https://i.imgur.com/e57pk7R.png" height="80%" width="80%" alt="v20a1"/>
-</p></br>
+</p><br />
 
 DSW-B2:
   ```
@@ -900,10 +913,10 @@ standby 4 preempt
 ```
 <p align="center">
 <img src="https://i.imgur.com/DTmnJui.png" height="80%" width="80%" alt="v20a1"/>
-</p></br>
+</p><br />
 That's it for configuring HSRPv2 in Office B. The command 'logging synchronous' command entered earlier is very helpful for this stage. If you mix up the VLAN ip address and the VIp you will get tons of Syslog message indicating misconfigurations. If you get those syslog errors, hit the up arrow to repeat the last command but put 'no' at the beginning of the line to undo the last command. Typos will certainly create Syslog messages during HSRP configurations. Configure the HSRP Standby Router for each VLAN with an STP priority one increment above the lowest priority.
-</br>
-</br>
+<br />
+<br />
 <h3>Part 4 - Rapid Spanning Tree Protocol</h3>
 <h4>Step 1: Configure Rapid PVST+ on all Access and Distribution switches. Configure Rapid PVST+ on all Access and Distribution switches. Configure Rapid PVST+ on all Access and Distribution switches. Ensure that the Root Bridge for each VLAN aligns with the HSRP Active router by configuring the lowest possible STP priority.</h4>
 
@@ -912,7 +925,7 @@ spanning-tree mode rapid-pvst
 ```
 <p align="center">
 <img src="https://i.imgur.com/ETI9pf2.png" height="80%" width="80%" alt="v20a1"/>
-</p></br>
+</p><br />
 This command needs to be entered on each Access and Distribution Switch: ASW-A1, ASW-A2, ASW-A3, ASW-B1, ASW-B2, ASW-B3, DSW-A1, DSW-A2, DSW-B1 and DSW-B2. This enables Rapid Per VLAN Spanning Treet (RPVST+). Rapid PVST+ is a Cisco improvement over Rapid Spanning Tree. The intention of Spanning tree protocols is to prvent Layer 2 Brodcast storms by blocking redundancy ports. Spanning tree reduces network traffic, to keep networks up and running by elminating unneeded network traffic. Rapid PVST+ improves on RSTP, by creating individual spanning trees for each VLAN, allowing for more granular control and allows for traffic load balancing by utilizing different paths for different VLANs.
 
 DSW-A1
@@ -922,7 +935,7 @@ spanning-tree vlan 20,40 priority 4096
 ```
 <p align="center">
 <img src="https://i.imgur.com/3eVnSSu.png" height="80%" width="80%" alt="v20a1"/>
-</p></br>
+</p><br />
 
 DSW-A2
    ```
@@ -943,8 +956,8 @@ spanning-tree vlan 10,99 priority 4096
 spanning-tree vlan 20,30 priority 0
 ```
 The root bridges(aka switches) for each VLAN receive a priority of 0. In spanning tree, the root pridge is elected by the bridge that has the lowest priority, if two or more bridges have the same priority, then the root pridge is determioned by bridge with the lowest Bridge ID(mac address). Since DSW-A1 and DSW-B1 are the active routers in HSRP for VLANs 10,99 they both receive a priority of 0(lowest priority level), with the comman 'spanning-tree vlan 10,99 priority 0'. Bridge priorities are adjust in incriments of 4096 (2^12) so one incriment above the lwoest priority is 4096, hence the command 'spanning-tree vlan 20,40 priority 4096'. In Office B vlan 30 is supstitited for vlan 40 in the commands.
-</br>
-</br>
+<br />
+<br />
 <h4>Step 2: Enable PortFast and BPDU Guard on all ports connected to end hosts (including WLC1). Perform the configurations in interface config mode.</h4>
 
   ```
@@ -954,7 +967,7 @@ spanning-tree bpduguard enable
 ```
 <p align="center">
 <img src="https://i.imgur.com/E32PaFH.png" height="80%" width="80%" alt="v20a1"/>
-</p></br>
+</p><br />
 This command is repeated on each Access Layer Switch: ASW-A1, ASW-A2, ASW-A3, ASW-B1, ASW-B2, and ASW-B3
 
 
