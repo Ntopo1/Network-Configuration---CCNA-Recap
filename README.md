@@ -1,5 +1,5 @@
 
-<h1> Two Office Network-Configuration---CCNA-Recap</h1>
+<h1> Two Office Network-Configuration--CCNA-Recap</h1>
 <h2>Description</h2>
   In this home lab, I am going to configure a three-tier LAN containing two offices using Cisco Packet Tracer for the virtual configuration. I will complete network configuration including IPv4 and IPv6, static routes, VLANs, spanning tree, OSPF, EtherChannel, DHCP, DNS, NAT, SSH, security features, and wireless configurations. Most configurations will be completed in the Cisco CLI, and wireless LAN configuration will be completed in the Cisco GUI. This project is a capstone project to demonstrate knowledge of all CCNA topics. The project was created by Jeremy of JeremysITLab.
   
