@@ -901,15 +901,61 @@ standby 4 preempt
 <p align="center">
 <img src="https://i.imgur.com/DTmnJui.png" height="80%" width="80%" alt="v20a1"/>
 </p></br>
-That's it for configuring HSRPv2 in Office B. The command 'logging synchronous' command entered earlier is very helpful for this stage. If you mix up the VLAN ip address and the VIp you will get tons of Syslog message indicating misconfigurations. If you get those syslog errors, hit the up arrow to repeat the last command but put 'no' at the beginning of the line to undo the last command. Typos will certainly create Syslog messages during HSRP configurations.
+That's it for configuring HSRPv2 in Office B. The command 'logging synchronous' command entered earlier is very helpful for this stage. If you mix up the VLAN ip address and the VIp you will get tons of Syslog message indicating misconfigurations. If you get those syslog errors, hit the up arrow to repeat the last command but put 'no' at the beginning of the line to undo the last command. Typos will certainly create Syslog messages during HSRP configurations. Configure the HSRP Standby Router for each VLAN with an STP priority one increment above the lowest priority.
 </br>
 </br>
+<h3>Part 4 - Rapid Spanning Tree Protocol</h3>
+<h4>Step 1: Configure Rapid PVST+ on all Access and Distribution switches. Configure Rapid PVST+ on all Access and Distribution switches. Configure Rapid PVST+ on all Access and Distribution switches. Ensure that the Root Bridge for each VLAN aligns with the HSRP Active router by configuring the lowest possible STP priority.</h4>
+
+   ```
+spanning-tree mode rapid-pvst
+```
+<p align="center">
+<img src="https://i.imgur.com/ETI9pf2.png" height="80%" width="80%" alt="v20a1"/>
+</p></br>
+This command needs to be entered on each Access and Distribution Switch: ASW-A1, ASW-A2, ASW-A3, ASW-B1, ASW-B2, ASW-B3, DSW-A1, DSW-A2, DSW-B1 and DSW-B2. This enables Rapid Per VLAN Spanning Treet (RPVST+). Rapid PVST+ is a Cisco improvement over Rapid Spanning Tree. The intention of Spanning tree protocols is to prvent Layer 2 Brodcast storms by blocking redundancy ports. Spanning tree reduces network traffic, to keep networks up and running by elminating unneeded network traffic. Rapid PVST+ improves on RSTP, by creating individual spanning trees for each VLAN, allowing for more granular control and allows for traffic load balancing by utilizing different paths for different VLANs.
+
+DSW-A1
+   ```
+spanning-tree vlan 10,99 priority 0
+spanning-tree vlan 20,40 priority 4096
+```
+<p align="center">
+<img src="https://i.imgur.com/3eVnSSu.png" height="80%" width="80%" alt="v20a1"/>
+</p></br>
+
+DSW-A2
+   ```
+spanning-tree vlan 10,99 priority 0
+spanning-tree vlan 20,40 priority 4096
+```
 
 
+DSW-B1
+   ```
+spanning-tree vlan 10,99 priority 0
+spanning-tree vlan 20,30 priority 4096
+```
 
+DSW-B2
+  ```
+spanning-tree vlan 10,99 priority 4096
+spanning-tree vlan 20,30 priority 0
+```
+The root bridges(aka switches) for each VLAN receive a priority of 0. In spanning tree, the root pridge is elected by the bridge that has the lowest priority, if two or more bridges have the same priority, then the root pridge is determioned by bridge with the lowest Bridge ID(mac address). Since DSW-A1 and DSW-B1 are the active routers in HSRP for VLANs 10,99 they both receive a priority of 0(lowest priority level), with the comman 'spanning-tree vlan 10,99 priority 0'. Bridge priorities are adjust in incriments of 4096 (2^12) so one incriment above the lwoest priority is 4096, hence the command 'spanning-tree vlan 20,40 priority 4096'. In Office B vlan 30 is supstitited for vlan 40 in the commands.
+</br>
+</br>
+<h4>Step 2: Enable PortFast and BPDU Guard on all ports connected to end hosts (including WLC1). Perform the configurations in interface config mode.</h4>
 
-
-
+  ```
+interface f0/1
+spanning-tree portfast
+spanning-tree bpduguard enable
+```
+<p align="center">
+<img src="https://i.imgur.com/E32PaFH.png" height="80%" width="80%" alt="v20a1"/>
+</p></br>
+This command is repeated on each Access Layer Switch: ASW-A1, ASW-A2, ASW-A3, ASW-B1, ASW-B2, and ASW-B3
 
 
 
