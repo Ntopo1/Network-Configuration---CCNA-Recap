@@ -1137,4 +1137,150 @@ default-information originate
 <p align="center">
 <img src="https://i.imgur.com/C8vaicz.png" height="80%" width="80%" alt="ospf default"/>
 </p><br />
-<p align='left'>I started by using the 'do show ip interface g0/1/0' command to get information about the interface. I can see that the interfaces are part of the /30 subnet, meaning 4 total addresses in the subnet. The network address is 203.0.113.4, broadcast address is 203.0.113.7. int g0/1/0 is 203.0.113.6 so I assumed the ISP's address is 203.0.113.5, I confirmed by pinging the address. A standard static route has an Administrative Distance (AD) of 1, to create a floating static route, it must have an AD higher than 1, so the 2 is added to the end of the ip route command to make it 1 AD higher than the default static route ad. The same methodology was used to determine the IP address for the other ISP. The command 'default-information originate' advertises the default route out of the network to other routers. It also makes R1 an Autonomous System Boundry Router(ASBR) or a router connected to an external network, in this case, the internet.
+<p align='left'>I started by using the 'do show ip interface g0/1/0' command to get information about the interface. I can see that the interfaces are part of the /30 subnet, meaning 4 total addresses in the subnet. The network address is 203.0.113.4, broadcast address is 203.0.113.7. int g0/1/0 is 203.0.113.6 so I assumed the ISP's address is 203.0.113.5, I confirmed by pinging the address. A standard static route has an Administrative Distance (AD) of 1, to create a floating static route, it must have an AD higher than 1, so the 2 is added to the end of the ip route command to make it 1 AD higher than the default static route ad. The same methodology was used to determine the IP address for the other ISP. The command 'default-information originate' advertises the default route out of the network to other routers. It also makes R1 an Autonomous System Boundary Router (ASBR) or a router connected to an external network, in this case, the internet.
+<br />
+<br />
+<h3>Part 6 – Network Services: DHCP, DNS, NTP, SNMP, Syslog, FTP, SSH, NAT</h3>
+<h4>Step 1. Configure the following DHCP pools on R1 to make it serve as the DHCP server for hosts in Offices A and B. Exclude the first ten usable host addresses of each pool; they must not be leased to DHCP clients.</h4>
+a. Pool: A-Mgmt
+i. Subnet: 10.0.0.0/28
+ii. Default gateway: 10.0.0.1
+iii. Domain name: jeremysitlab.com
+iv. DNS server: 10.5.0.4 (SRV1)
+v. WLC: 10.0.0.7
+b. Pool: A-PC
+i. Subnet: 10.1.0.0/24
+ii. Default gateway: 10.1.0.1
+iii. Domain name: jeremysitlab.com
+iv. DNS server: 10.5.0.4 (SRV1)
+c. Pool: A-Phone
+i. Subnet: 10.2.0.0/24
+ii. Default gateway: 10.2.0.1
+iii. Domain name: jeremysitlab.com
+iv. DNS server: 10.5.0.4 (SRV1)
+d. Pool: B-Mgmt
+i. Subnet: 10.0.0.16/28
+ii. Default gateway: 10.0.0.17
+iii. Domain name: jeremysitlab.com
+iv. DNS server: 10.5.0.4 (SRV1)
+v. WLC: 10.0.0.7
+e. Pool: B-PC
+i. Subnet: 10.3.0.0/24
+ii. Default gateway: 10.3.0.1
+iii. Domain name: jeremysitlab.com
+iv. DNS server: 10.5.0.4 (SRV1)
+f. Pool: B-Phone
+i. Subnet: 10.4.0.0/24
+ii. Default gateway: 10.4.0.1
+iii. Domain name: jeremysitlab.com
+iv. DNS server: 10.5.0.4 (SRV1)
+g. Pool: Wi-Fi
+i. Subnet: 10.6.0.0/24
+ii. Default gateway: 10.6.0.1
+iii. Domain name: jeremysitlab.com
+iv. DNS server: 10.5.0.4 (SRV1)
+
+R1:
+   ```
+ip dhcp excluded-address 10.0.0.1 10.0.0.10
+ip dhcp excluded-address 10.1.0.1 10.1.0.10
+ip dhcp excluded-address 10.2.0.1 10.2.0.10
+ip dhcp excluded-address 10.0.0.17 10.0.0.26
+ip dhcp excluded-address 10.3.0.1 10.3.0.10
+ip dhcp excluded-address 10.4.0.1 10.4.0.10
+ip dhcp excluded-address 10.6.0.1 10.6.0.10
+```
+
+<p align='left'>These are the first 10 addresses from each of the subnets. The DHCP-excluded addresses are excluded independent of a DHCP pool, so this is entered directly in Global Config mode. The 'ip dhcp excluded address' command is followed by the first ip address in the range, followed by the last address in the range so R1 will not assign the address to clients.</p>
+
+R1:
+   ```
+ip dhcp pool A-Mgmt
+network 10.0.0.0 255.255.255.240
+default-router 10.0.0.1
+dns-server 10.5.0.4
+domain-name jeremeysitlab.com
+option 43 ip 10.0.0.7
+
+ip dhcp pool A-PC
+network 10.1.0.0 255.255.255.0
+default-router 10.1.0.1
+dns-server 10.5.0.4
+domain-name jeremeysitlab.com
+
+ip dhcp pool A-Phone
+network 10.2.0.0 255.255.255.0
+default-router 10.2.0.1
+dns-server 10.5.0.4
+domain-name jeremeysitlab.com
+```
+
+<p align="center">
+<img src="https://i.imgur.com/cviR7Vv.png" height="80%" width="80%" alt="dhcp office a"/>
+</p><br />
+<p align='left'> The command 'ip DHCP pool (pool name)' creates a DHCP pool. The network command tells the pool which addresses are eligible for that specific DHCP pool. The 'default-router (ip address)' command sets the default-router, or the router to send traffic to. The 'DNS-server (ip address)' command sets the Domain Name System (DNS) server's IP address for the DHCP pool. For this network, SRV1 is the DNS server for the entire network. So whenever human-readable addresses need to be translated to ipv4 addresses the end hosts will reach out to SRV1 to get the correct translated address. The 'domain-name (domain-name)' command sets the domain name for each subnet. The 'option 43 ip 10.0.0.7' command sets the IP address for the WLC.</p>
+
+R1:
+   ```
+ip dhcp pool B-Mgmt
+network 10.0.0.16 255.255.255.240
+default-router 10.0.0.17
+dns-server 10.5.0.4
+domain-name jeremeysitlab.com
+option 43 ip 10.0.0.7
+
+ip dhcp pool B-PC
+network 10.3.0.0 255.255.255.0
+default-router 10.3.0.1
+dns-server 10.5.0.4
+domain-name jeremeysitlab.com
+
+ip dhcp pool B-Phone
+network 10.4.0.0 255.255.255.0
+default-router 10.4.0.1
+dns-server 10.5.0.4
+domain-name jeremeysitlab.com
+
+ip dhcp pool WiFi
+network 10.6.0.0 255.255.255.0
+default-router 10.6.0.1
+dns-server 10.5.0.4
+domain-name jeremeysitlab.com
+```
+<p align="center">
+<img src="https://i.imgur.com/nAPLY0c.png" height="80%" width="80%" alt="dhcp office b"/>
+</p><br />
+<br />
+<br />
+<h4>Step Configure the Distribution switches to relay wired DHCP clients’ broadcast messages to R1’s Loopback0 IP address.</h4>
+
+DSW-A1 and DSW-A2
+  ```
+interface vlan 10
+ip helper-address 10.0.0.76
+interface vlan 20
+ip helper-address 10.0.0.76
+interface vlan 40
+ip helper-address 10.0.0.76
+interface vlan 99
+ip helper-address 10.0.0.76
+```
+<p align="center">
+<img src="https://i.imgur.com/Ov6Mw2I.png" height="80%" width="80%" alt="dhcp office b"/>
+</p><br />
+
+DSW-B1 and DSW-B2
+   ```
+interface vlan 10
+ip helper-address 10.0.0.76
+interface vlan 20
+ip helper-address 10.0.0.76
+interface vlan 30
+ip helper-address 10.0.0.76
+interface vlan 99
+ip helper-address 10.0.0.76
+```
+<p align="center">
+<img src="https://i.imgur.com/beG2Sdq.png" height="80%" width="80%" alt="dhcp office b"/>
+</p><br />
+<p align='left'> These commands set a DHCP helper relay to the loopback interface on R1. So Whenever the SVI in each VLAN receives a DHCP message, it will forward the message to R1.
