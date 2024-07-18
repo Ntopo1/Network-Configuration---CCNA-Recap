@@ -1199,20 +1199,20 @@ ip dhcp pool A-Mgmt
 network 10.0.0.0 255.255.255.240
 default-router 10.0.0.1
 dns-server 10.5.0.4
-domain-name jeremeysitlab.com
+domain-name jeremysitlab.com
 option 43 ip 10.0.0.7
 
 ip dhcp pool A-PC
 network 10.1.0.0 255.255.255.0
 default-router 10.1.0.1
 dns-server 10.5.0.4
-domain-name jeremeysitlab.com
+domain-name jeremysitlab.com
 
 ip dhcp pool A-Phone
 network 10.2.0.0 255.255.255.0
 default-router 10.2.0.1
 dns-server 10.5.0.4
-domain-name jeremeysitlab.com
+domain-name jeremysitlab.com
 ```
 
 <p align="center">
@@ -1226,26 +1226,26 @@ ip dhcp pool B-Mgmt
 network 10.0.0.16 255.255.255.240
 default-router 10.0.0.17
 dns-server 10.5.0.4
-domain-name jeremeysitlab.com
+domain-name jeremysitlab.com
 option 43 ip 10.0.0.7
 
 ip dhcp pool B-PC
 network 10.3.0.0 255.255.255.0
 default-router 10.3.0.1
 dns-server 10.5.0.4
-domain-name jeremeysitlab.com
+domain-name jeremysitlab.com
 
 ip dhcp pool B-Phone
 network 10.4.0.0 255.255.255.0
 default-router 10.4.0.1
 dns-server 10.5.0.4
-domain-name jeremeysitlab.com
+domain-name jeremysitlab.com
 
 ip dhcp pool WiFi
 network 10.6.0.0 255.255.255.0
 default-router 10.6.0.1
 dns-server 10.5.0.4
-domain-name jeremeysitlab.com
+domain-name jeremysitlab.com
 ```
 <p align="center">
 <img src="https://i.imgur.com/nAPLY0c.png" height="80%" width="80%" alt="dhcp office b"/>
