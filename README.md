@@ -1519,3 +1519,56 @@ no lldp transmit
 <p align='left'> This disables the transmission of LLDP packets on the f0/1 interfaces. This is used to reduce network traffic, enhance security by not disclosing device information, or manage specific interface behavior.
 <br/>
 <br/>
+<h3>Part 7 – Security: ACLs and Layer-2 Security Features</h3>
+<h4>Step 1: Configure extended ACL OfficeA_to_OfficeB where appropriate:</h4>
+a. Allow ICMP messages from the Office A PCs subnet to the Office B PCs subnet.<br/>
+b. Block all other traffic from the Office A PCs subnet to the Office B PCs subnet.<br/>
+c. Allow all other traffic.<br/>
+d. Apply the ACL according to general best practice for extended ACLs.<br/>
+
+DSW-A1 and DSW-A2
+   ```
+ip access-list extended OfficeA_to_OfficeB
+permit icmp 10.1.0.0 0.0.0.255 10.3.0.0 0.0.0.255
+deny ip 10.1.0.0 0.0.0.0.255 10.3.0.0 0.0.0.255
+permit any any
+interface vlan 10
+ip access-group OfficeA_to_OfficeB in
+```
+<p align="center">
+<img src="https://i.imgur.com/GCrHEBm.png" height="80%" width="80%" alt="extended acl"/>
+</p><br/>
+<p align='left'> This command starts by creating a named extended ACL. Named ACLs, can be named rather than numbered, making them easier to identify and modify. Extended ACLS allows more granular control over network traffic by filtering packets based on various criteria, including source and destination IP addresses, protocol types, and port numbers. The command 'permit icmp 10.1.0.0 0.0.0.255 10.3.0.0 0.0.0.255" ensures that only ICMP traffic is allowed between the specified networks (10.1.0.0/24 and 10.3.0.0/24). 'deny ip 10.1.0.0 0.0.0.0.255 10.3.0.0 0.0.0.255' denies all other traffic between the two networks. ACLs have an implicit deny, the command 'permit any any' allows all other traffic from OfficeA to OfficeB. The 'ip access-group OfficeA_to_OfficeB in' sets the ACL to filter traffic when it enters the router on DSW-A1 and DSW-A2. Extended ACLS should be set as close to the source as possible, because of how big of an impact they can have on traffic flows, and the processing power required.
+<br/>
+<br/>
+<h4>Step 2. Configure Port Security on each Access switch's F0/1 port:</h4>
+a. Allow the minimum necessary number of MAC addresses on each port.<br/>
+i. SRV1 does not use virtualization, so it uses a single MAC address.<br/>
+b. Configure a violation mode that blocks invalid traffic without affecting valid traffic. The switches should send notifications when invalid traffic is detected.<br/>
+c. Switches should automatically save the secure MAC addresses they learn to the running-config<br/>
+
+ASW-A1, ASW-B1 and ASW-B3
+  ```
+interface f0/1
+switchport port-security
+switchport port-security violation restrict
+switchport port-security mac-address sticky
+```
+<p align="center">
+<img src="https://i.imgur.com/v2LssyJ.png" height="80%" width="80%" alt="port security"/>
+</p><br/>
+
+ASW-A2, ASW-A3 and ASW-B2
+  ```
+interface f0/1
+switchport port-security
+switchport port-security violation restrict
+switchport port-security mac-address sticky
+switchport port-security maximum 2
+```
+<p align="center">
+<img src="https://i.imgur.com/S0ghFY2.png" height="80%" width="80%" alt="port security phones"/>
+</p><br/>
+<p align='left'> Port Security is a Cisco security protocol that allows MAC address limiting, sticky MAC addresses, and different security responses to these violations (shutdown, restrict, and protect). Port security is applied per interface. to enable port security, enter interface config mode with 'interface (interface #)' followed by 'switchport port-security'. The port security violation mode restricts, drops packets with unknown source addresses, and logs the violation. Violation mode shutdown, makes the interface enter an err-disable state when a packet is sent with an unknown MAC address and generates a Syslog message. Violation mode protect just drops a packet when a packet enters from an unknown MAC address. The command 'switchport port-security mac-address sticky' dynamically learns and saves the MAC address of the first packet sent into the port. The default configuration for Sticky MAc addresses only saves one address. The command 'switchport port-security maximum 2' is used on ASW-A2, ASW-A3 and ASW-B2 because they also have the Phone vlan, so 2 addresses per connection to interface f0/1 and phone traffic needs to be able to travel across the network.
+<br/>
+<br/>
