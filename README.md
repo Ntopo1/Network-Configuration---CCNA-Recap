@@ -1572,3 +1572,9 @@ switchport port-security maximum 2
 <p align='left'> Port Security is a Cisco security protocol that allows MAC address limiting, sticky MAC addresses, and different security responses to these violations (shutdown, restrict, and protect). Port security is applied per interface. to enable port security, enter interface config mode with 'interface (interface #)' followed by 'switchport port-security'. The port security violation mode restricts, drops packets with unknown source addresses, and logs the violation. Violation mode shutdown, makes the interface enter an err-disable state when a packet is sent with an unknown MAC address and generates a Syslog message. Violation mode protect just drops a packet when a packet enters from an unknown MAC address. The command 'switchport port-security mac-address sticky' dynamically learns and saves the MAC address of the first packet sent into the port. The default configuration for Sticky MAc addresses only saves one address. The command 'switchport port-security maximum 2' is used on ASW-A2, ASW-A3 and ASW-B2 because they also have the Phone vlan, so 2 addresses per connection to interface f0/1 and phone traffic needs to be able to travel across the network.
 <br/>
 <br/>
+<h4>3. Configure DHCP Snooping on all Access switches.</h4>
+a. Enable it for all active VLANs in each LAN.<br/>
+b. Trust the appropriate ports.<br/>
+c. Disable insertion of DHCP Option 82.<br/>
+d. Set a DHCP rate limit of 15 pps on active untrusted ports.<br/>
+e. Set a higher limit (100 pps) on ASW-A1’s connection to WLC1.<br/>
