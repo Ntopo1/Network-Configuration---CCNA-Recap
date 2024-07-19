@@ -1141,7 +1141,7 @@ default-information originate
 <br/>
 <br/>
 <h3>Part 6 – Network Services: DHCP, DNS, NTP, SNMP, Syslog, FTP, SSH, NAT</h3>
-<h4>Step 1. Configure the following DHCP pools on R1 to make it serve as the DHCP server for hosts in Offices A and B. Exclude the first ten usable host addresses of each pool; they must not be leased to DHCP clients.</h4>
+<h4>Step 1: Configure the following DHCP pools on R1 to make it serve as the DHCP server for hosts in Offices A and B. Exclude the first ten usable host addresses of each pool; they must not be leased to DHCP clients.</h4>
 a. Pool: A-Mgmt
 i. Subnet: 10.0.0.0/28
 ii. Default gateway: 10.0.0.1
@@ -1252,7 +1252,7 @@ domain-name jeremysitlab.com
 </p><br/>
 <br/>
 <br/>
-<h4>Step Configure the Distribution switches to relay wired DHCP clients’ broadcast messages to R1’s Loopback0 IP address.</h4>
+<h4>Step 2: Configure the Distribution switches to relay wired DHCP clients’ broadcast messages to R1’s Loopback0 IP address.</h4>
 
 DSW-A1 and DSW-A2
   ```
@@ -1299,7 +1299,7 @@ d. www.jeremysitlab.com = jeremysitlab.com<br/>
 <img src="https://i.imgur.com/XAH8HTp.png" height="80%" width="80%" alt="dns confirmation"/>
 </p><br/>
 <br/>
-<h4>4. Configure all routers and switches to use the domain name jeremysitlab.com and use SRV1 as their DNS server.</h4>
+<h4>Step 4: Configure all routers and switches to use the domain name jeremysitlab.com and use SRV1 as their DNS server.</h4>
 
    ```
 ip domain name jeremysitlab.com
@@ -1311,7 +1311,7 @@ ip name-server 10.5.0.4
 These commands need to be completed on each network device.
 <br/>
 <br/>
-<h4>5. Configure NTP on R1:</h4>
+<h4>Step 5: Configure NTP on R1:</h4>
 a. Make R1 a stratum 5 NTP server.<br/>
 b. R1 should learn the time from NTP server 216.239.35.0.<br/>
 
@@ -1325,7 +1325,7 @@ ntp master 5
 <p align='left'> NTP (Network Time Protocol) is used for clock synchronization. Manual configuration of clocks on the device leaves room for human error and time rounding errors. NTP is a way to synchronize clocks on a network to each other and to an external NTP server, which usually is a very accurate clock. This eliminates time drift and helps with the accuracy of Syslog messages. The command 'ntp server (ip address)' tells the device where the NTP server is located. The command 'ntp master (5)' allows this device to be referenced when configuring NTP on the rest of the network, so each device does not need to send traffic to the NTP server. The number 5 sets the stratum, or reference distance to the NTP server, a lower number is considered more accurate.
 <br/>
 <br/>
-<h4>6. All Core, Distribution, and Access switches should use R1’s loopback interface as their NTP server.</h4> 
+<h4>Step 6: All Core, Distribution, and Access switches should use R1’s loopback interface as their NTP server.</h4> 
 a. Clients should authenticate R1 using key number 1 and the password ccna
 
 R1:
@@ -1353,7 +1353,7 @@ Other Network Devices:
 <p align='left'> The command 'ntp authentication-key 1 md5 ccna' defines an authentication key for NTP. The command 'ntp trusted-key 1' specifies which keys are trusted for authenticating NTP servers. The command 'ntp server 10.0.0.76 key 1' configures an NTP server for the device to synchronize with, using a specified authentication key. These commands should be repeated on all other network devices, other than R1, to establish an NTP connection.
 <br/>
 <br/>
-<h4>7. Configure the SNMP community string SNMPSTRING on all routers and switches. The string should allow GET messages, but not SET messages.</h4>
+<h4>Step 7: Configure the SNMP community string SNMPSTRING on all routers and switches. The string should allow GET messages, but not SET messages.</h4>
 
    ```
 snmp-server community SNMPSTRING ro
@@ -1364,7 +1364,7 @@ snmp-server community SNMPSTRING ro
 <p align='left'> SNMP (Simple Network Management Protocol) allows for remote monitoring of the device by a SNMP Manager. The command 'snmp-server community SNMPSTRING ro' with read-only permissions, meaning the SNMP get messages will be permitted, but SET messages will not.
 <br/>
 <br/>
-<h4>Sep 8. Configure Syslog on all routers and switches:</h4>
+<h4>Step 8: Configure Syslog on all routers and switches:</h4>
 a. Send Syslog messages to SRV1. Messages of all severity levels should be logged.<br/>
 b. Enable logging to the buffer. Reserve 8192 bytes of memory for the buffer.<br/>
 
@@ -1379,7 +1379,7 @@ logging buffered 8192
 <p align='left'> The command 'logging 10.5.0.4' sets the Syslog server location to SRV1's IP address. 'logging trap debugging' will now send Syslog 'debugging (level 7)' messages via UDP to SRV, this sends all Syslog messages. The command 'logging buffered 8192' configures the device to keep log messages in an internal buffer of 8192 bytes. So Syslog messages will be stored locally and on the Syslog server (SRV1). This a good security practice, because if Syslog messages are cleared locally, either by an admin after fixing an error or by someone trying to cover their tracks, a central repository will keep all messages.
 <br/>
 <br/>
-<h4>9. Use FTP on R1 to download a new IOS version from SRV1:</h4>
+<h4>Step 9: Use FTP on R1 to download a new IOS version from SRV1:</h4>
 a. Configure R1’s default FTP credentials: username cisco, password cisco.
 b. Use FTP to copy the file c2900-universalk9-mz.SPA.155-3.M4a.bin from SRV1 to R1’s flash drive.
 c. Reboot R1 using the new IOS file, and then delete the old one from Flash.
@@ -1422,7 +1422,7 @@ delete flash:c2900-universalk9-mz.SPA.151-4.M4a.bin
 <p align='left'> The old IOS version has now been deleted, freeing up system resources.
 <br/>
 <br/>
-<h4>Step 10. Configure SSH for secure remote access on all routers and switches.</h4>
+<h4>Step 10: Configure SSH for secure remote access on all routers and switches.</h4>
 a. Use the largest modulus size for the RSA keys.<br/>
 b. Allow SSHv2 connections only.<br/>
 c. Create standard ACL 1, only allowing packets sourced from Office A’s PCs subnet. Apply the ACL to all VTY lines to restrict SSH access.<br/>
@@ -1468,7 +1468,7 @@ ip nat inside
 <p align='left'> Network Address Translation (NAT) is used to modify the source and/ or destination IP address. Static nat configures one-to-one mapping of Private IP addresses (all IP addresses statically set so far) to public IP addresses (leased addresses on R1's G0/0/0 and G0/1/0 interfaces). the command 'ip nat source static 10.5.0.4 203.0.113.113' means any traffic originating from 10.5.0.4 will appear to come from 203.0.113.113 when it exits the network, and any traffic destined for 203.0.113.113 will be directed to 10.5.0.4 internally. The next 4 commands set the internal and external sides of the router for NAT translations.</p>
 <br/>
 <br/>
-<h4>12. Configure pool-based dynamic PAT on R1 to enable hosts in the Office A PCs, Office A Phones, Office B PCs, Office B Phones, and Wi-Fi subnets to access the Internet.</h4>
+<h4>Step 12: Configure pool-based dynamic PAT on R1 to enable hosts in the Office A PCs, Office A Phones, Office B PCs, Office B Phones, and Wi-Fi subnets to access the Internet.</h4>
 a. Use standard ACL 2 to define the appropriate inside local address ranges in the following order:<br/>
 i. Office A PCs: 10.1.0.0/24<br/>
 ii. Office A Phones: 10.2.0.0/24<br/>
@@ -1493,7 +1493,7 @@ ip nat inside source list 2 pool POOL1 overload
 <p align='left'> The first 5 lines create a second ACL that will permit traffic from the required subnets. The command 'ip nat pool POOL1 203.0.113.200 203.0.113.207 netmask 255.255.255.248' defines a NAT pool named POOL1 which specifies a range of public IP addresses available for NAT. The command 'ip nat inside source list 2 pool POOL1 overload' configures dynamic NAT with PAT (Port Address Translation) using the specified NAT pool, POOL1. This allows internal devices to share a range of public IP addresses for internet access while using port numbers to distinguish between different internal connections. The configuration ensures efficient use of public IP addresses and provides scalable network access.
 <br/>
 <br/>
-<h4>Step 13. 13. Disable CDP on all devices and enable LLDP instead. </h4>
+<h4>Step 13: Disable CDP on all devices and enable LLDP instead. </h4>
 a. Disable LLDP Tx on each Access switch’s access port (F0/1)<br/>
 
 All routers and switches:
