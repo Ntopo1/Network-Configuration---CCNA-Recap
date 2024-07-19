@@ -1283,4 +1283,142 @@ ip helper-address 10.0.0.76
 <p align="center">
 <img src="https://i.imgur.com/beG2Sdq.png" height="80%" width="80%" alt="dhcp office b"/>
 </p><br />
-<p align='left'> These commands set a DHCP helper relay to the loopback interface on R1. So Whenever the SVI in each VLAN receives a DHCP message, it will forward the message to R1.
+<p align='left'> These commands set a DHCP helper relay to the loopback interface on R1. So Whenever the Switch Virtual Interface (SVI) in each VLAN receives a DHCP message, it will forward the message to R1. This step is essential, or hosts outside of R1's immediate network would not be able to lease IP addresses via DHCP.
+<br />
+<br />
+<h4>Step 3: Configure the following DNS entries on SRV1 </h4>
+a. google.com = 172.253.62.100<br />
+b. youtube.com = 152.250.31.93<br />
+c. jeremysitlab.com = 66.235.200.145<br />
+d. www.jeremysitlab.com = jeremysitlab.com<br />
+<p align="center">
+<img src="https://i.imgur.com/KafG75a.png" height="80%" width="80%" alt="dns setup"/>
+</p><br />
+<p align='left'> In this step you must use the GUI of SRV1 to set DNS(Domain Name Systems) records. The first 3 records are A Records, which map IPv4 addresses(172.253.62.100) to a human-readable domain name(googgle.com). So whenever the network pings or tries to reach google.com, the DNS server will translate the message destination address to 172.253.62.100. Canonical Record or CRecord maps a domain name to another domain name allowing either address search to have the same results. Even-though in our mind, google.com and www.google.com, are the same web pages, a computer does not think that way. It only knows exactly what it's told. so on this network www.google.com is not reachable, because there is no C record mapping the two domain names. The below image shows PC 1 pinging certain addresses, confirming that the DNS server is working.<br />
+<p align="center">
+<img src="https://i.imgur.com/XAH8HTp.png" height="80%" width="80%" alt="dns confirmation"/>
+</p><br />
+<br />
+<h4>4. Configure all routers and switches to use the domain name jeremysitlab.com and use SRV1 as their DNS server.</h4>
+
+   ```
+ip domain name jeremysitlab.com
+ip name-server 10.5.0.4
+```
+<p align="center">
+<img src="https://i.imgur.com/5Zi1yyW.png" height="80%" width="80%" alt="domain name and dns server"/>
+</p><br />
+These commands need to be completed on each network device.
+<br />
+<br />
+<h4>5. Configure NTP on R1:</h4>
+a. Make R1 a stratum 5 NTP server.<br />
+b. R1 should learn the time from NTP server 216.239.35.0.<br />
+
+   ```
+ntp server 216.239.35.0
+ntp master 5
+```
+<p align="center">
+<img src="https://i.imgur.com/Umw9P6Q.png" height="80%" width="80%" alt="ntp setup"/>
+</p><br />
+<p align='left'> NTP (Network Time Protocol) is used for clock synchronization. Manual configuration of clocks on the device leaves room for human error and time rounding errors. NTP is a way to synchronize clocks on a network to each other and to an external NTP server, which usually is a very accurate clock. This eliminates time drift and helps with the accuracy of Syslog messages. The command 'ntp server (ip address)' tells the device where the NTP server is located. The command 'ntp master (5)' allows this device to be referenced when configuring NTP on the rest of the network, so each device does not need to send traffic to the NTP server. The number 5 sets the stratum, or reference distance to the NTP server, a lower number is considered more accurate.
+<br />
+<br />
+<h4>6. All Core, Distribution, and Access switches should use R1’s loopback interface as their NTP server.</h4> 
+a. Clients should authenticate R1 using key number 1 and the password ccna
+
+R1:
+   ```
+ntp authentication-key 1 md5 ccna
+ntp trusted-key 1
+```
+
+<p align="center">
+<img src="https://i.imgur.com/YRNaNJM.png" height="80%" width="80%" alt="ntp authentication-key"/>
+</p><br />
+<p align='left'> R1 is the NTP reference server for the network, so other networks are going to request NTP information from this device. The command 'ntp authentication-key 1 md5 ccna' sets an NTP key number (1), using the md5 hashing algorithm, and the password is ccna. The command 'ntp trusted-key 1' tells the router to use the key generated in the last step to authenticate NTP clients.</p>
+
+
+All other network devices:
+   ```
+ntp authentication-key 1 md5 ccna
+ntp trusted-key 1
+ntp server 10.0.0.76 key 1
+```
+Other Network Devices:
+<p align="center">
+<img src="https://i.imgur.com/Ocjcn86.png" height="80%" width="80%" alt="ntp client"/>
+</p><br />
+<p align='left'> The command 'ntp authentication-key 1 md5 ccna' defines an authentication key for NTP. The command 'ntp trusted-key 1' specifies which keys are trusted for authenticating NTP servers. The command 'ntp server 10.0.0.76 key 1' configures an NTP server for the device to synchronize with, using a specified authentication key. These commands should be repeated on all other network devices, other than R1, to establish an NTP connection.
+<br />
+<br />
+<h4>7. Configure the SNMP community string SNMPSTRING on all routers and switches. The string should allow GET messages, but not SET messages.</h4>
+
+   ```
+snmp-server community SNMPSTRING ro
+```
+<p align="center">
+<img src="https://i.imgur.com/7cepIH8.png" height="80%" width="80%" alt="ntp client"/>
+</p><br />
+<p align='left'> SNMP (Simple Network Management Protocol) allows for remote monitoring of the device by a SNMP Manager. The command 'snmp-server community SNMPSTRING ro' with read-only permissions, meaning the SNMP get messages will be permitted, but SET messages will not.
+<br />
+<br />
+<h4>Sep 8. Configure Syslog on all routers and switches:</h4>
+a. Send Syslog messages to SRV1. Messages of all severity levels should be logged.<br />
+b. Enable logging to the buffer. Reserve 8192 bytes of memory for the buffer.<br />
+
+  ```
+logging 10.5.0.4
+logging trap debugging
+logging buffered 8192
+```
+<p align="center">
+<img src="https://i.imgur.com/7cepIH8.png" height="80%" width="80%" alt="ntp client"/>
+</p><br />
+<p align='left'> The command 'logging 10.5.0.4' sets the Syslog server location to SRV1's IP address. 'logging trap debugging' will now send Syslog 'debugging (level 7)' messages via UDP to SRV, this sends all Syslog messages. The command 'logging buffered 8192' configures the device to keep log messages in an internal buffer of 8192 bytes. So Syslog messages will be stored locally and on the Syslog server (SRV1). This a good security practice, because if Syslog messages are cleared locally, either by an admin after fixing an error or by someone trying to cover their tracks, a central repository will keep all messages.
+<br />
+<br />
+<h4>9. Use FTP on R1 to download a new IOS version from SRV1:</h4>
+a. Configure R1’s default FTP credentials: username cisco, password cisco.
+b. Use FTP to copy the file c2900-universalk9-mz.SPA.155-3.M4a.bin from SRV1 to R1’s flash drive.
+c. Reboot R1 using the new IOS file, and then delete the old one from Flash.
+
+   ```
+ip ftp username cisco
+ip ftp password cisco
+do copy ftp flash
+```
+>10.5.0.4
+>c2900-universalk9-mz.SPA.155-3.M4a.bin
+<p align="center">
+<img src="https://i.imgur.com/GHo6ur1.png" height="80%" width="80%" alt="ftp file transfer"/>
+</p><br />
+<p align='left'> FTP(File Transfer Protocol) server requires authentication to access the server, unlike TFTP(Trivial File Transfer Protocol). 'ip ftp username cisco' and 'ip ftp password cisco' set the credentials to authenticate on the FTP server. The command 'do copy ftp flash' tells the router to copy(command) a file via ftp(protocol) to flash memory(destination). 10.5.0.4 is the IP address of the FTP server, then you are asked for a source file name requested.</p>
+
+  ```
+boot system flash c2900-universalk9-mz.SPA.155-3.M4a.bin
+do write
+```
+<p align="center">
+<img src="https://i.imgur.com/arpExGN.png" height="80%" width="80%" alt="boot source"/>
+</p><br />
+<p align='left'> The command 'boot system flash c2900-universalk9-mz.SPA.155-3.M4a.bin' tells the router to on next boot use the system file located in flash memory name:c2900-universalk9-mz.SPA.155-3.M4a.bin. Writing this command to the running configuration will not automatically update the software. a system reboot is still required.</p>
+
+  ```
+do reload
+```
+<p align="center">
+<img src="https://i.imgur.com/ZBq2D39.png" height="80%" width="80%" alt="software update"/>
+</p><br />
+<p align='left'> System software has now been updated
+
+   ```
+delete flash:c2900-universalk9-mz.SPA.151-4.M4a.bin
+```
+<p align="center">
+<img src="https://i.imgur.com/pPG38eb.png" height="80%" width="80%" alt="delete flash"/>
+</p><br />
+<p align='left'> The old IOS version has now been deleted, freeing up system resources.
+<br />
+<br />
