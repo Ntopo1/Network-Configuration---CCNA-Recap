@@ -1715,7 +1715,7 @@ ipv6 route ::/0 g0/1/0 2001:db8:b::1 2
 <p align="center">
 <img src="https://i.imgur.com/HJmUYrG.png" height="80%" width="80%" alt="ipv6 route"/>
 </p><br/>
-<p align='left'> IPv6 default routes use the address ::/0. The first route 'ipv6 route ::/0 2001:db8:a::1' will be the only route entered in the routing table. Floating IPv6 routes function the same, they must ahve an AD higher than the static route, to be sued as a back up and they will not be shown on the routing table. A fully specified route indicates that the interface and next-hip IP address are used.</p>
+<p align='left'> IPv6 default routes use the address ::/0. The first route 'ipv6 route ::/0 2001:db8:a::1' will be the only route entered in the routing table. Floating IPv6 routes function the same, they must have an AD higher than the static route, to be used as a back-up and they will not be shown on the routing table. A fully specified route indicates that the interface and next-hip IP address are used.</p>
 <br/>
 <br/>
 <h3>Part 9 – Wireless </h3>
@@ -1725,7 +1725,7 @@ b. Password: adminPW12<br/>
 <p align="center">
 <img src="https://i.imgur.com/dBClI7O.png" height="80%" width="80%" alt="Desktop access WLC"/>
 </p><br/>
-<p align='left'>PCs have a Web browser program that can be accessed from the desktop. The web browser is not connected to the real internet, but it can access IP address within the network. In the URL bar enter the IP address of the WLC (https://10.0.0.7) for a secure connection via HTTPS. Then etner the login credentials to access the GUI(graphical user interface) of WLC1. </p>
+<p align='left'>PCs have a Web browser program that can be accessed from the desktop. The web browser is not connected to the real internet, but it can access IP addresses within the network. In the URL bar enter the IP address of the WLC (https://10.0.0.7) for a secure connection via HTTPS. Then enter the login credentials to access the GUI(graphical user interface) of WLC1. </p>
 <br/>
 <br/>
 <h4>Step 2: Configure a dynamic interface for the Wi-Fi WLAN (10.6.0.0/24) </h34>
@@ -1766,6 +1766,6 @@ e. Security: WPA2 Policy with AES encryption, PSK of cisco123<br/>
 <p align="center">
 <img src="https://i.imgur.com/Y5uC3dv.png" height="80%" width="80%" alt="wlan security2"/>
 </p><br/>
-<p align='left'> We proceed to create the new wireless LAN by selecting WLANS New in the top menu then New. You can then name the interface profile name, and the SSID(Service Set Identifier) is a unique identifier used in wireless networks to distinguish one wireless network from another. The drop-down will allow you to select the ID #, 1 is fine. then click "Apply" in the top right corner. In the General tab, select enabled, to enable the WLAN, change the interface group to the interface we just created. Select the "Security' Tab.. Select WPA+WPA2 from the Layer 2 security  drop-down. Tick the boxes, WPA2 Policy to enable WPA2, AES to enable AES encryption of all WLAN traffic, and PSK(pre-shared key). Then scroll down, select ASCII from the PSK shared format drop-down, and type the PSK password to access the network (cisco123). Then scroll back up to apply changes.</p>
+<p align='left'> We proceed to create the new wireless LAN by selecting WLANS New in the top menu then New. You can then name the interface profile name, and the SSID(Service Set Identifier) is a unique identifier used in wireless networks to distinguish one wireless network from another. The drop-down will allow you to select the ID #, 1 is fine. then click "Apply" in the top right corner. In the General tab, select enabled, to enable the WLAN, change the interface group to the interface we just created. Select the "Security' Tab.. Select WPA+WPA2 from the Layer 2 security  drop-down. Tick the boxes, WPA2 Policy to enable WPA2, AES to enable AES encryption of all WLAN traffic, and PSK(pre-shared key). Then scroll down, select ASCII from the PSK shared format drop-down, and type the PSK password to access the network (cisco123). Then scroll back up to apply changes by clicking "Apply" in the top right corner.</p>
 <br/
 <br/
