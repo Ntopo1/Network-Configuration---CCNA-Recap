@@ -1569,7 +1569,7 @@ switchport port-security maximum 2
 <p align="center">
 <img src="https://i.imgur.com/S0ghFY2.png" height="80%" width="80%" alt="port security phones"/>
 </p><br/>
-<p align='left'> Port Security is a Cisco security protocol that allows MAC address limiting, sticky MAC addresses, and different security responses to these violations (shutdown, restrict, and protect). Port security is applied per interface. to enable port security, enter interface config mode with 'interface (interface #)' followed by 'switchport port-security'. The port security violation mode restricts, drops packets with unknown source addresses, and logs the violation. Violation mode shutdown, makes the interface enter an err-disable state when a packet is sent with an unknown MAC address and generates a Syslog message. Violation mode protect just drops a packet when a packet enters from an unknown MAC address. The command 'switchport port-security mac-address sticky' dynamically learns and saves the MAC address of the first packet sent into the port. The default configuration for Sticky MAc addresses only saves one address. The command 'switchport port-security maximum 2' is used on ASW-A2, ASW-A3 and ASW-B2 because they also have the Phone vlan, so 2 addresses per connection to interface f0/1 and phone traffic needs to be able to travel across the network.
+<p align='left'> Port Security is a Cisco security protocol that allows MAC address limiting, sticky MAC addresses, and different security responses to these violations (shutdown, restrict, and protect). Port security is applied per interface. to enable port security, enter interface config mode with 'interface (interface #)' followed by 'switchport port-security'. The port security violation mode restricts, drops packets with unknown source addresses, and logs the violation. Violation mode shutdown, makes the interface enter an err-disable state when a packet is sent with an unknown MAC address and generates a Syslog message. Violation mode protect just drops a packet when a packet enters from an unknown MAC address. The command 'switchport port-security mac-address sticky' dynamically learns and saves the MAC address of the first packet sent into the port. The default configuration for Sticky MAc addresses only saves one address. The command 'switchport port-security maximum 2' is used on ASW-A2, ASW-A3, and ASW-B2 because they also have the Phone vlan, so 2 addresses per connection to interface f0/1 and phone traffic needs to be able to travel across the network.
 <br/>
 <br/>
 <h4>3. Configure DHCP Snooping on all Access switches.</h4>
@@ -1578,3 +1578,194 @@ b. Trust the appropriate ports.<br/>
 c. Disable insertion of DHCP Option 82.<br/>
 d. Set a DHCP rate limit of 15 pps on active untrusted ports.<br/>
 e. Set a higher limit (100 pps) on ASW-A1’s connection to WLC1.<br/>
+
+
+ASW-A1:
+   ```
+ip dhcp snooping
+ip dhcp snooping vlan 10,20,40,99
+no ip dhcp snooping information option
+interface range g0/1-2
+ip dhcp snooping trust
+interface f0/1
+ip dhcp snooping limit rate 15
+interface f0/2
+ip dhcp snooping limit 100
+```
+<p align="center">
+<img src="https://i.imgur.com/Sp8dXav.png" height="80%" width="80%" alt="dhcp snooping"/>
+</p><br/>
+
+ASW-A2 and ASW-3:
+   ```
+ip dhcp snooping
+ip dhcp snooping vlan 10,20,40,99
+no ip dhcp snooping information option
+interface range g0/1-2
+ip dhcp snooping trust
+int f0/1
+ip dhcp limit rate 15
+```
+
+Office B:
+   ```
+ip dhcp snooping
+ip dhcp snooping vlan 10,20,30,99
+no ip dhcp snooping information option
+interface range g0/1-2
+ip dhcp snooping trust
+int f0/1
+ip dhcp limit rate 15
+```
+
+<p align='left'> DHCP snooping is a security feature on switches that filters DHCP messages on untrusted ports. DHCP snooping protects against DHCP poisoning attacks, such as man-in-the-middle attacks and DHCP exhaustion attacks. By default, all ports are untrusted after the command 'ip dhcp snooping' has been enabled. Upstream ports should be trusted ports, configured with the command 'ip dhcp snooping trust' from interface configuration mode. The switch will no longer monitor DHCP messages entering from these ports, allowing DHCP server response messages to be unfiltered. DHCP client messages will still be filtered.
+<br/>
+The command 'ip dhcp snooping' enables DHCP snooping on a per-VLAN basis. If a DHCP message is received on an untrusted port, the switch inspects the message. If it is a DHCP server message, it discards it, since DHCP server ports should be trusted. If it is a DHCP client Discover/Request message, it checks if the frame's source MAC address and the DHCP message's CHADDR (client hardware address) fields match. If there is a match, the message is forwarded; if there is a mismatch, it is discarded. For DHCP Release/Decline messages, the switch checks if the packet's source IP address and the receiving interface match an entry in the DHCP Snooping Binding Table. If they match, the message is forwarded; if not, it is discarded. When a client successfully leases an IP address from a server, a new entry is created in the DHCP Snooping Binding Table.
+<br/>
+The command 'ip dhcp limit rate' limits the amount of DHCP messages allowed through an interface. This is to stop DHCP exhaustion attacks. The purpose of the 'no ip dhcp snooping information option' command is to disable the insertion of the DHCP Option 82 (also known as the DHCP relay agent information option) in DHCP packets that are forwarded by the switch. Some DHCP servers or clients might not support or correctly process DHCP Option 82.</p>
+<br/>
+<br/>
+<h4> Step 4: Configure DAI on all Access switches</h4>
+a. Enable it for all active VLANs in each LAN.<br/>
+b. Trust the appropriate ports.<br/>
+c. Enable all optional validation checks.<br/>
+
+Office A:
+   ```
+ip arp inspection vlan 10,20,40,99
+ip arp inspection validate ip dst-mac src mac
+interface range g0/1-2
+ip arp inspection trust
+```
+<p align="center">
+<img src="https://i.imgur.com/RBTpYRm.png" height="80%" width="80%" alt="dai office a"/>
+</p><br/>
+
+Office B:
+   ```
+ip arp inspection vlan 10,20,30,99
+ip arp inspection validate ip dst-mac src mac
+interface range g0/1-2
+ip arp inspection trust
+```
+<p align="center">
+<img src="https://i.imgur.com/OznQuR2.png" height="80%" width="80%" alt="dai office b"/>
+</p><br/>
+<p align='left'> Dynamic ARP Inspection (DAI) A security feature of switches that is used to filter ARP messages received on untrusted ports, to prevent ARP poisoning. It functions similarly to DHCP snooping and uses some of the features like the HDCP snooping binding table, so DHCP snooping needs to be enabled for DAI to function. DAI inspects the sender MAC and sender IP fields of the ARP messages received on untrusted ports and checks that there is a matching entry in the DHCP snooping binding table. If the ARP message matches the DHCP snooping binding table, the message is forwarded, if not, the message is dropped.
+<br/>
+The commands are similar, enable ARP inspection on the VLAN (it only needs to be enabled on the VLAN). The command 'ip arp inspection validate ip dst-mac src mac' tells the switch to compare all 3 validation types, the IP address, Destination MAc Address, and the source address for the messsage to be forwarded. Then 'ip arp inspection trust' is issued on the uplink interfaces to create trusted ports that are no longer inspected.
+<br/>
+<br/>
+<h3>Part 8 - IPv6</h3>
+<h4>Step 1: To prepare for a migration to IPv6, enable IPv6 routing and configure IPv6 addresses on R1, CSW1, and CSW2: </h4>
+a. R1 G0/0/0: 2001:db8:a::2/64<br/>
+b. R1 G0/1/0: 2001:db8:b::2/64<br/>
+c. R1 G0/0 and CSW1 G1/0/1: Use prefix 2001:db8:a1::/64 and EUI-64 to generate an interface ID for each interface.<br/>
+d. R1 G0/1 and CSW2 G1/0/1: Use prefix 2001:db8:a2::/64 and EUI-64 to generate an interface ID for each interface.<br/>
+e. CSW1 Po1 and CSW2 Po1: Enable IPv6 without using the ‘ipv6 address’ command.<br/>
+
+R1:
+   ```
+ipv6 unicast-routing
+interface g0/0/0
+ipv6 address 2001:db8:a::2/64
+interface g0/1/0
+ipv6 address 2001:db8:b::2/64
+interface g0/0
+ipv6 address 2001:db8:a1::/64 EUI-64
+interface g0/1
+ipv6 address 2001:db8:a2::/64 EUI-64
+```
+<p align="center">
+<img src="https://i.imgur.com/njD8a90.png" height="80%" width="80%" alt="ipv6 r1"/>
+</p><br/>
+
+CSW1:
+   ```
+ipv6 unicast-routing
+interface g1/0/1
+ipv6 address 2001:db8:a1::/64 EUI-64
+interface po1
+ipv6 enable
+```
+<p align="center">
+<img src="https://i.imgur.com/V7V0wrU.png" height="80%" width="80%" alt="ipv6 csw1"/>
+</p><br/>
+
+CSW2:
+   ```
+ipv6 unicast-routing
+interface g1/0/1
+ipv6 address 2001:db8:a2::/64 EUI-64
+interface po1
+ipv6 enable
+```
+
+<p align='left'> IPv6 is the predocessor to IPv4. IPv4 does not provide enough unique IP addresses for the world, IPv6 was created to fix this problem. The total number of possible IPv6 addresses is 340,282,366,920,938,463,463,374,607,431,768,211,456 addresses. The primary advantage of IPv6 over IPv4, allowing for a virtually unlimited number of unique IP addresses. IPv6 is still not widely adopted, but preparing a network for the eventual change, it is good to prepare your network for future changes and growth. The command 'ipv6 unicast-routing' enables ipv6 on the router. The commands ' ipv6 address 2001:db8:a::2/64' and 'ipv6 address 2001:db8:b::2/64' assign a specific IPv6 address with a prefix length of /64. The commands 'ipv6 address 2001:db8:a1::/64 EUI-64' and 'ipv6 address 2001:db8:a2::/64 EUI-64' generate an IPv6 address. They use the first 64 bits of the prefix length, then use EUI-64, which uses the interface MAC address, adds the hexadecimal FFFE into the middle of the MAC, and inverts the 7th bit of the number. It generates the last 64 bits from the MAC to create a unique 128-bit IPv6 address. The command 'ipv6 enable' enables ipv6 on the interface and generates a link-local IPv6 address</p>
+<br/>
+<br/>
+<h4>Step 2: Configure two default static routes on R1:</h4>
+a. A recursive route via next hop 2001:db8:a::1.<br/>
+b. A fully-specified route via next hop 2001:db8:b::1. Make it a floating route by configuring the AD 1 higher than the default.<br/>
+
+   ```
+ipv6 route ::/0 2001:db8:a::1
+ipv6 route ::/0 g0/1/0 2001:db8:b::1 2
+```
+<p align="center">
+<img src="https://i.imgur.com/HJmUYrG.png" height="80%" width="80%" alt="ipv6 route"/>
+</p><br/>
+<p align='left'> IPv6 default routes use the address ::/0. The first route 'ipv6 route ::/0 2001:db8:a::1' will be the only route entered in the routing table. Floating IPv6 routes function the same, they must ahve an AD higher than the static route, to be sued as a back up and they will not be shown on the routing table. A fully specified route indicates that the interface and next-hip IP address are used.</p>
+<br/>
+<br/>
+<h3>Part 9 – Wireless </h3>
+<h4>Step 1:  Access the GUI of WLC1 (https://10.0.0.7) from one of the PCs.</h4>
+a. Username: admin<br/>
+b. Password: adminPW12<br/>
+<p align="center">
+<img src="https://i.imgur.com/dBClI7O.png" height="80%" width="80%" alt="Desktop access WLC"/>
+</p><br/>
+<p align='left'>PCs have a Web browser program that can be accessed from the desktop. The web browser is not connected to the real internet, but it can access IP address within the network. In the URL bar enter the IP address of the WLC (https://10.0.0.7) for a secure connection via HTTPS. Then etner the login credentials to access the GUI(graphical user interface) of WLC1. </p>
+<br/>
+<br/>
+<h4>Step 2: Configure a dynamic interface for the Wi-Fi WLAN (10.6.0.0/24) </h34>
+a. Name: Wi-Fi<br/>
+b. VLAN: 40<br/>
+c. Port number: 1<br/>
+d. IP address: .2 of its subnet<br/>
+e. Gateway: .1 of its subnet<br/>
+f. DHCP server: 10.0.0.76<br/>
+<p align="center">
+<img src="https://i.imgur.com/YIeSqjJ.png" height="80%" width="80%" alt="interfaces tab"/>
+</p><br/>
+<p align="center">
+<img src="https://i.imgur.com/p5Bdvfi.png" height="80%" width="80%" alt="create interface"/>
+</p><br/>
+<p align="center">
+<img src="https://i.imgur.com/L34RQXw.png" height="80%" width="80%" alt="configure the interface"/>
+</p><br/>
+<p align='left'> After logging into the WLC, you click the Controller tab at the top center of the page. Select interfaces on the right menu, then select "New..." to create a new interface. Start by creating an Interface name and entering the VLAN ID used in the network configuration (VLAN40) then click apply in the top right corner. You can now configure the interface, enter the port #, IP address, netmask gateway and Primary DHCP server, to dynamically assign IP addresses on the Wi-Fi subnet. Then click Apply to save changes.</p>
+<br/>
+<br/>
+<h4>Step 3: Configure and enable the following WLAN:</h4>
+a. Profile name: Wi-Fi<br/>
+b. SSID: Wi-Fi<br/>
+c. ID: 1<br/>
+d. Status: Enabled<br/>
+e. Security: WPA2 Policy with AES encryption, PSK of cisco123<br/>
+
+<p align="center">
+<img src="https://i.imgur.com/lEsTlFW.png" height="80%" width="80%" alt="wlan creation"/>
+</p><br/>
+<p align="center">
+<img src="https://i.imgur.com/qINFgYU.png" height="80%" width="80%" alt="wlan assign interface"/>
+</p><br/>
+<p align="center">
+<img src="https://i.imgur.com/udEL4kZ.png" height="80%" width="80%" alt="wlan security 1"/>
+</p><br/>
+<p align="center">
+<img src="https://i.imgur.com/Y5uC3dv.png" height="80%" width="80%" alt="wlan security2"/>
+</p><br/>
+<p align='left'> We proceed to create the new wireless LAN by selecting WLANS New in the top menu then New. You can then name the interface profile name, and the SSID(Service Set Identifier) is a unique identifier used in wireless networks to distinguish one wireless network from another. The drop-down will allow you to select the ID #, 1 is fine. then click "Apply" in the top right corner. In the General tab, select enabled, to enable the WLAN, change the interface group to the interface we just created. Select the "Security' Tab.. Select WPA+WPA2 from the Layer 2 security  drop-down. Tick the boxes, WPA2 Policy to enable WPA2, AES to enable AES encryption of all WLAN traffic, and PSK(pre-shared key). Then scroll down, select ASCII from the PSK shared format drop-down, and type the PSK password to access the network (cisco123). Then scroll back up to apply changes.</p>
+<br/
+<br/
