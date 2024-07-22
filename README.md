@@ -54,7 +54,7 @@ Additional Notes:
 <img src="https://i.imgur.com/3oSoI7g.png" height="80%" width="80%" alt="Diagram Layers"/>
 </p><br/>  
 <br/>
-<h3>Part 1: Initial Setup</h3>
+<h3>Part 1 - Initial Setup</h3>
 <h4>Step 1: Configure appropriate hostnames for each router and switch</h4>
 <br/>
   
@@ -144,7 +144,7 @@ The `line console 0` command is used to enter the console line configuration mod
 <br/> 
 <br/> 
   
-<h3>Part 2: VLANs, Layer-2 EtherChannel</h3>
+<h3>Part 2 - VLANs, Layer-2 EtherChannel</h3>
 <h4>Step 1: Configure a Layer-2 EtherChannel named PortChannel1 between DSW-A1 and DSW-A2 using a Cisco-proprietary protocol.</h4>  
 Both switches should actively try to form an EtherChannel.
 <br/>
@@ -412,7 +412,7 @@ shutdown
 <p align="left"> Shutting down all unused ports is a good security practice. Switches will automatically allow new physical connections to connect to the network. Administratively shutting down the interface prevents access to the network. This step needs to be repeated on each switch in Office A and Office B: ASW-A1, ASW-A2, ASW-A3, ASW-B1, ASW-B2, ASW-B3, DSW-A1, DSW-B1, and DSW-B2. The `show interfaces status` command should be used on each switch to determine which interfaces to shut down using the interface range command.</p>
 <br/>
 <br/>
-<h3>Part 3: IP Addresses, Layer-3 EtherChannel, HSRP </h3>
+<h3>Part 3 - IP Addresses, Layer-3 EtherChannel, HSRP </h3>
 <h4>Step 1: Configure the following IP addresses on R1’s interfaces and enable them:</h4>
 <br/>
 
