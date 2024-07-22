@@ -1,7 +1,13 @@
 
 <h1> Two Office Network-Configuration--CCNA-Recap</h1>
 <h2>Description</h2>
-  In this home lab, I am going to configure a three-tier LAN containing two offices using Cisco Packet Tracer for the virtual configuration. I will complete network configuration including IPv4 and IPv6, static routes, VLANs, spanning tree, OSPF, EtherChannel, DHCP, DNS, NAT, SSH, security features, and wireless configurations. Most configurations will be completed in the Cisco CLI, and wireless LAN configuration will be completed in the Cisco GUI. This project is a capstone project to demonstrate knowledge of all CCNA topics. The project was created by Jeremy of JeremysITLab.
+ In this home lab project, I will configure a three-tier LAN encompassing two offices using Cisco Packet Tracer for virtual configurations. The project involves:
+
+  - <b>Network Configuration: IPv4 and IPv6 addressing, static routes, VLANs, spanning tree, OSPF.</b>
+  - <b>Advanced Features: EtherChannel, DHCP, DNS, NAT, SSH, security features.</b>
+  - <b>Wireless Configurations: Completed via Cisco GUI.</b>
+
+This capstone project is designed to showcase comprehensive knowledge of all CCNA topics. The project was developed by Jeremy of JeremysITLab.
   
 <br/>
 <h2>Utilities Used</h2>
@@ -16,7 +22,33 @@
 <p align="center">
 <img src="https://i.imgur.com/ZlyHjLe.png" height="80%" width="80%" alt="Topology"/>
 </p><br/>
-<p align="left">This is the provided network topology. The devices are connected appropriately but not configured yet. The network connects to the internet via a dual-homed router at the top center of the image. Below the router, there are two Core Layer, multilayer switches, CSW1 and CSW2. The two core layer switches will be connected via a PaGP ether channel for redundancy and load balancing. Below the Core Switches, there are a total of 4 Distribution Layer, Layer 3 Switches: DSW-A1, DSW-A2, DSW-B1, and DSW-B2. The Access Layer consists of 6 Layer 2 switches: ASW-A1, ASW-A2, ASW-A3, ASW-B1, ASW-B2, and ASW-B3. The Wireless LAN Controller (WLC1) is connected to ASW-A1. Lightweight Access Point (LWAP1) will be used for guest wireless access in Office A, and it is also connected to the access layer via ASW-A1. These Cisco C2960 switches have 24 Fast Ethernet ports, so each switch could have 24 end hosts connected. However, to demonstrate the knowledge of connecting an end host, each switch will only have one end host. In Office B, on the right, a second Lightweight Access Point (LWAP2) is used for guest Wi-Fi. LWAP2 is connected to the access layer via ASW-B1. There is one end host connected to the access layer via ASW-B2. SRV1, located in the bottom right of Office B, will be used as a Domain Name System (DNS) server, File Transfer Protocol (FTP) server, and a Syslog Log server for the network.
+<p align="left">Network Topology Description:
+
+The network is structured as follows:
+
+  Internet Connection:
+> Dual-Homed Router: Located at the top center, connects the network to the internet.
+
+  Core Layer:
+> Core Switches (CSW1 and CSW2): Multilayer switches that will be interconnected using a PAgP EtherChannel for redundancy and load balancing.
+
+  Distribution Layer:
+> Layer 3 Switches (DSW-A1, DSW-A2, DSW-B1, DSW-B2): Four switches managing routing and distribution between core and access layers.
+
+  Access Layer:
+> Layer 2 Switches (ASW-A1, ASW-A2, ASW-A3, ASW-B1, ASW-B2, ASW-B3): Six switches providing connectivity to end hosts and other network devices.<br/>
+>      Wireless LAN Controller (WLC1): Connected to ASW-A1.<br/>
+>     Lightweight Access Points (LWAP1 and LWAP2):<br/>
+>          LWAP1 provides guest wireless access in Office A and connects to ASW-A1.<br/>
+>          LWAP2 provides guest Wi-Fi in Office B and connects to ASW-B1.<br/>
+>      End Hosts: Each switch has one end host connected, with additional end hosts connected through ASW-B2 and the wireless access points.<br/>
+
+  Servers:
+> SRV1: Located in Office B, serving as a DNS server, FTP server, and Syslog server for the network.
+
+Additional Notes:
+
+>  Cisco C2960 switches are used, each with 24 Fast Ethernet ports, but only one end host is connected per switch for demonstration purposes</p>
 <br/>
 <p align="center">
 <img src="https://i.imgur.com/3oSoI7g.png" height="80%" width="80%" alt="Diagram Layers"/>
@@ -37,14 +69,17 @@ exit
   
 <p align="center">
 <img src="https://i.imgur.com/XFh94DR.png" height="80%" width="80%" alt="hostname"/>
-  <br/>
-  <img src="https://i.imgur.com/SDTysiV.png" height="80%" width="80%" alt="hostname"/>
-</p><br/>
-<p align="left">In packet tracer, you can access a network device's CLI by double-clicking the device and then clicking the CLI tab. The hostname is configured from the Global config mode. The 'enable' command allows the user to access privileged Exec mode indicated by #. The 'configure terminal' command allows the user to access Global Exec mode, indicated by (config#) 
+</p>
+<br/>
+<p align="center">
+<img src="https://i.imgur.com/SDTysiV.png" height="80%" width="80%" alt="hostname"/>
+</p>
+<br/>
+<p align="left">In Packet Tracer, you can access a network device's CLI(Command Line Interface) by double-clicking the device and then clicking the CLI tab. The hostname is configured from Global Configuration mode. The 'enable' command allows the user to access Privileged EXEC mode, indicated by #. The 'configure terminal' command allows the user to access Global Configuration mode, indicated by (config)#. </p>
 <br/>
 <br/>
-<h4>Step 2: Configure the enable secret jeremysitlab on each router and switch. Use type 9 hashing if available; otherwise, use type 5.</h4>
-<br/> 
+<h4>Step 2: Configure the enable secret jeremysitlab on each router and switch.</h4>
+Use type 9 hashing if available; otherwise, use type 5.<br/>
 
   ```
 enable algorithm-type script secret jeremysitlab
@@ -58,13 +93,16 @@ enable secret jeremysitlab
 <p align="center">
 <img src="https://i.imgur.com/h7tupSf.png" height="80%" width="80%" alt="level 9 hashing"/>
 </p>
+<br/>
 <p align="center">
 <img src="https://i.imgur.com/yeapZHJ.png" height="80%" width="80%" alt="level 5 hashing"/>
-</p><br/>
-<p align="left">The 'enable secret' and 'enable algorithm-type script secret' commands each provide an added layer of security. These commands set a password for entering privileged EXEC mode, which is stored in a hashed format for security. The enable algorithm-type script secret command, or the type 9 hashing, provides the most secure hashing algorithm on current Cisco devices, but it's not supported on every device type. Type 5 hashing, used by the enable secret command, sets an MD5 hashed password on the device; it's considered less secure than level 9. Using hashing algorithms with passwords is always a good security practice. Even though MD5 hashing is no longer secure, it adds another layer of complexity for someone who may be attempting to tamper with the device. 
+</p>
+<br/>
+<p align="left">The 'enable secret' and 'enable algorithm-type script secret' commands each provide an added layer of security. These commands set a password for entering Privileged EXEC mode, which is stored in a hashed format for security. The 'enable algorithm-type script secret' command, using type 9 hashing, provides the most secure hashing algorithm on current Cisco devices, though it is not supported on every device type. Type 5 hashing, used by the enable secret command, employs MD5 hashing, which is considered less secure than type 9. Using hashing algorithms with passwords is always a good security practice. Although MD5 hashing is no longer considered secure, it adds another layer of complexity for anyone attempting to tamper with the device. 
 <br/>
 <br/>
-<h4>Step 3: Configure the user account cisco with secret ccna on each router and switch. Use type 9 hashing if available; otherwise, use type 5 </h4><br/>
+<h4>Step 3: Configure the user account cisco with secret ccna on each router and switch.</h4>
+Use type 9 hashing if available; otherwise, use type 5 <br/>
 
    ```
 username cisco algorithm-type script secret ccna
@@ -78,11 +116,11 @@ username cisco secret ccna
 <p align="center">
 <img src="https://i.imgur.com/q37zwUV.png" height="80%" width="80%" alt="u/p level 9"/>
 </p>
-<p align="center">
+<br/>
 <img src="https://i.imgur.com/BQp8nD8.png" height="80%" width="80%" alt="u/p level 5"/>
-</p><br/>
-<p align="left"> 
-These commands create a local user account with a username 'cisco' and an encrypted password 'ccna'. Level 9 hashing of the password is preferred, but it is not supported on all devices. When the command 'username cisco algorithm-type script secret ccna' is not accepted on the device, the next preferred option for this lab is 'username cisco secret ccna'.
+</p>
+<br/>
+<p align="left"> These commands create a local user account with a username 'cisco' and an encrypted password 'ccna'. Type 9 hashing of the password is preferred, but it is not supported on all devices. When the command 'username cisco algorithm-type script secret ccna' is not accepted on the device, the next preferred option for this lab is 'username cisco secret ccna'.
 <br/>
 <br/>
 <h4>Step 4: Configure the console line to require login with a local user account. Set a 30-minute inactivity timeout. Enable synchronous logging.</h4>
@@ -97,11 +135,12 @@ line console 0
 <p align="center">
 <img src="https://i.imgur.com/KpT2OCm.png" height="80%" width="80%" alt="console line config"/>
 </p>
+<br/>
 <p align="left"> 
 The 'line console 0' command is used to enter the console line configuration mode on a Cisco device. This mode allows you to configure settings for the console line, which is the physical console port on the device. The 'login local' command allows usernames and passwords configured locally on the device can be used to log in. The 'exec-timeout 30' command signs out the signed-in user after 30 minutes of inactivity. The 'logging synchronous' command ensures that system messages do not interrupt your command input on the console, logging synchronous reprints your current command line after each log message. The step is repeated on each router and switch.
 <br/> 
 <br/> 
-
+  
 <h3>Part 2: VLANs, Layer-2 EtherChannel</h3>
 <h4>Step 1: Configure a Layer-2 EtherChannel named PortChannel1 between DSW-A1 and DSW-A2 using a Cisco-proprietary protocol. Both switches should actively try to form an EtherChannel.</h4> 
 <br/>
