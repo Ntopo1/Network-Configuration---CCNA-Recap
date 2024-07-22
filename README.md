@@ -1900,7 +1900,7 @@ In the "Security" tab, select WPA+WPA2 from the Layer 2 security drop-down menu.
 <br/
 <br/
 
-<h2>Conclusion </h2>
+<h2>Conclusion: </h2>
 
 <p align="left">Overall, this was great! It was challenging and great to see everything I studied for CCNA come together as a complete project. Even after taking JeremyITLAb's course, I was able to learn helpful tips to complete this project. Writing commands into a single configuration file, like Word or Notepad, is incredibly helpful, especially when needing to write the same command on several network devices, it greatly reduces typos this way.<br/>
 <br/>
