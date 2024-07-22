@@ -1,5 +1,5 @@
 
-<h1> Two Office Network-Configuration--CCNA-Recap</h1>
+<h1> Two Office Network-Configuration-CCNA-Recap</h1>
 <h2>Description</h2>
  In this home lab project, I will configure a three-tier LAN encompassing two offices using Cisco Packet Tracer for virtual configurations. The project involves:
 
@@ -1900,4 +1900,13 @@ In the "Security" tab, select WPA+WPA2 from the Layer 2 security drop-down menu.
 <br/
 <br/
 
+<h2>Conclusion</h2>
+
+<p align="left">Overall, this was great! It was challenging and great to see everything I studied for CCNA come together as a complete project. Even after taking JeremyITLAb's course, I was able to learn helpful tips to complete this project. Writing commands into a single configuration file, like Word or Notepad, is incredibly helpful, especially when needing to write the same command on several network devices, it greatly reduces typos this way.<br/>
+<br/>
+I need to take my time when setting up HSRP. When you get bombarded by Syslog messages because of misconfigurations it can get frustrating. But again, writing everything in an external document helps eliminate a lot of these errors, along with logging synchronous.<br/>
+<br/>
+I would be lying if I said I didn't run into any hiccups along the way. I ran into issues with creating the layer 3 EtherChannel between CSW1 and CSW2. Eventually, I realized I wrote the IP addresses/ no switchport commands on the Gigabit ethernet interfaces, instead of the PortChannel1 interfaces. It took me a long time to troubleshoot and diagnose the problem, but eventually, I got it working properly.<br/>
+<br/>
+I still couldn't figure out why I was able to get DHCP to work properly in Office B, but I couldn't get it to work in Office A. End hosts could still lease an IP address but not in the correct IP range from the DHCP pool. I could manually assign the IP address and the end hosts could ping every device, but whenever the 'ipconfig /renew' command I would get a DHCP error. All in all, this is great learning/practice before implementing these configurations in a live network. I look forward to configuring a physical network soon.</p>
 
