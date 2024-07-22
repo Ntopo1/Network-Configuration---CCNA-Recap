@@ -119,6 +119,7 @@ username cisco secret ccna
 <img src="https://i.imgur.com/q37zwUV.png" height="80%" width="80%" alt="u/p level 9"/>
 </p>
 <br/>
+<p align="center">
 <img src="https://i.imgur.com/BQp8nD8.png" height="80%" width="80%" alt="u/p level 5"/>
 </p>
 <br/>
@@ -393,7 +394,7 @@ switchport nonegotiate
 <p align="left"> These commands have already been explained in previous steps. This command is only entered on ASW-A1 in Office A, which connects to the WLC. Interface f0/2 is connected to WLC1 and needs to support multiple VLANs, so it is configured as a trunk. It must allow both the Wi-Fi VLAN and the Management VLAN over the trunk, which is done with the `switchport trunk allowed vlan 40,99 command`. To ensure that the Management VLAN traffic is untagged, VLAN 99 (the Management VLAN) is set as the native VLAN for the trunk. Additionally, to disable DTP, the `switchport nonegotiate` command is issued.</p>
 <br/>
 <br/>
-<h4>Step 9:  Administratively disable all unused ports on the Access and Distribution switches.</h4>
+<h4>Step 9: Administratively disable all unused ports on the Access and Distribution switches.</h4>
 <br/>
 Access and Distribution Layer Switches:
 
@@ -659,7 +660,7 @@ ip address 10.0.0.82 255.255.255.255
 - <b>IPv4 Address: 10.5.0.4</b>
 - <b>Subnet Mask: 255.255.255.0</b>
   
-<p align="left">To enter the configuration setting on end hosts, in packet tracer, you must use the GUI to manually set the configuration.
+<p align="left">To enter the configuration setting on end hosts, in packet tracer, you must use the GUI to manually set the configuration.</p>
 <br/>
 <p align="center">
 <img src="https://i.imgur.com/RII6kW3.png" height="80%" width="80%" alt="SRV1"/>
@@ -725,7 +726,7 @@ ip address 10.0.0.22 255.255.255.240
 <p align="center">
 <img src="https://i.imgur.com/n4MbmL8.png" height="80%" width="80%" alt="asw-b2"/>
 </p><br/>
-<p align="left">These interface configurations create virtual interfaces that allow the management VLAN to communicate with these access layer, layer 2 switches. The `default-gateway` command is added to the configuration because layer 2 switches do not have routing tables, they do not know where to send ip traffic. The `default-gateway` command tells the switch where to forward IP traffic. Switches in Office A and Office B have different default gateway addresses because each office has a netmask of /28 meaning there are 16 total addresses. For office A, 10.0.0.0 is the network address and 10.0.0.15 is the broadcast address making 10.0.0.1 the first usable address. For Office B, 10.0.0.16 is the network address and 10.0.0.31 is the broadcast address making 10.0.0.17 the first usable address.
+<p align="left">These interface configurations create virtual interfaces that allow the management VLAN to communicate with the access layer, Layer 2 switches. The `default-gateway` command is added to the configuration because Layer 2 switches do not have routing tables and thus do not know where to send IP traffic. The `default-gateway` command specifies where the switch should forward IP traffic. Switches in Office A and Office B have different default gateway addresses because each office has a /28 subnet, which provides 16 total addresses. For Office A, 10.0.0.0 is the network address, and 10.0.0.15 is the broadcast address, making 10.0.0.1 the first usable address. For Office B, 10.0.0.16 is the network address, and 10.0.0.31 is the broadcast address, making 10.0.0.17 the first usable address.</p>
 <br/>
 <br/>
 <h4>Step 12: Configure HSRPv2 group 1 for Office A’s Management subnet (VLAN 99). Make DSW-A1 the Active router by increasing its priority to 5 above the default, and enable preemption on DSW-A1.</h4>
@@ -758,12 +759,13 @@ standby 1 ip 10.0.0.1
 <p align="center">
 <img src="https://i.imgur.com/IpQEeju.png" height="80%" width="80%" alt="asw-b2"/>
 </p><br/>
-These configurations access VLAN 99, assign an IP address, set Hot Standby Redundancy Protocol version 2 (HSRPv2), and assign the virtual IP address the switches will share. HSRP versions 1 and two are not compatible, so make sure both switches are using standby version 2 with the command `standby version 2`. A virtual IP(VIp) address differs from a standard IP address because both switches are going to share the virtual address, in this case, the VIp is set with the `standby1 ip 10.0.0.1` command in HSRP group 1. When configuring HSRP each switch has a priority of 100. The directions ask us to make DSW-A1 the active router by increasing the priority by 5 above default, the command `standby 1 priority 105` does this. First-hop redundancy protocols(FHRP) are a way of load balancing (if configured), and providing redundancy in the network by having a primary and second router. If the primary router fails or goes down, the secondary router will become the primary router to ensure traffic can still traverse the network. HSRP is a Cisco proprietary FHRP, the active router is elected by the router with the highest priority, in this case DSW-A1 priority of 105, or the router with the highest IP address. In this case, DSW-A2 is the standby router, which will take over forwarding traffic if DSW-A1 fails. The command `standby preempt` will force an Active election if it comes back online. If this line was not added, and when down, DSW-A2 would become the active route and stay the active router, until it went down or another router joined the standby group with preemption enabled.
+<p align="left">These configurations access VLAN 99, assign an IP address, set Hot Standby Redundancy Protocol version 2 (HSRPv2), and assign the virtual IP address that the switches will share. HSRP versions 1 and 2 are not compatible, so ensure both switches use standby version 2 with the command `standby version 2`. A virtual IP (VIP) address differs from a standard IP address because both switches share the virtual address. In this case, the VIP is set with the `standby 1 ip 10.0.0.1` command in HSRP group 1. Each switch is initially set with a priority of 100. The instructions specify making DSW-A1 the active router by increasing the priority by 5 above the default. The command `standby 1 priority 105` accomplishes this. First-hop redundancy protocols (FHRPs) provide load balancing (if configured) and redundancy in the network by designating a primary and secondary router. If the primary router fails, the secondary router assumes the role of the primary to ensure uninterrupted traffic flow. HSRP, a Cisco proprietary FHRP, elects the active router based on the highest priority, in this case, DSW-A1 with a priority of 105, or the highest IP address. DSW-A2 is the standby router and will take over traffic forwarding if DSW-A1 fails. The command `standby preempt` ensures an active election if DSW-A1 comes back online. Without this command, DSW-A2 would remain the active router if it had taken over during DSW-A1's failure until it failed or another router with preemption enabled joined the standby group.<br/>
 <br/>
-These switches can act as routers because they are multilayer switches. They can act as both switches and routers.
+These switches can function as routers because they are multilayer switches, capable of performing both switching and routing tasks.</p>
 <br/>
 <br/>
-<h4>Step 13. Configure HSRPv2 group 2 for Office A’s PCs subnet (VLAN 10). Make DSW-A1 the Active router by increasing its priority to 5 above the default, and enable preemption on DSW-A1.</h4> 
+<h4>Step 13. Configure HSRPv2 group 2 for Office A’s PCs subnet (VLAN 10). </h4>
+ Make DSW-A1 the Active router by increasing its priority to 5 above the default, and enable preemption on DSW-A1.<br/> 
 
 - <b>Subnet 10.1.0.0/24</b>
 - <b>VIP: 10.1.0.1</b>
@@ -793,10 +795,11 @@ standby 2 ip 10.1.0.1
 <p align="center">
 <img src="https://i.imgur.com/hlxsoWA.png" height="80%" width="80%" alt="v10a2"/>
 </p><br/>
-These commands do the same thing as step 12 but for the PCs subnet. The standby group is changed to standby group 2 to allow VLAN separation, redundancy, and failover. This also allows for a separate VIP to be assigned just for this specific VLAN. Separating each VLAN into its own standby groups allows network traffic to still flow if there is a misconfiguration or failure in one VLAN because each VLAN will have its traffic sent separately from each other VLAN.
+<p align="left">These commands perform the same functions as step 12 but for the PCs' subnet. The standby group is changed to standby group 2 to enable VLAN separation, redundancy, and failover. This setup also allows for a separate VIP to be assigned specifically for this VLAN. Separating each VLAN into its own standby group ensures that network traffic can continue to flow even if there is a misconfiguration or failure in one VLAN, as each VLAN’s traffic is handled independently of the others.</p>
 <br/>
 <br/>
-<h4>Step 14. Configure HSRPv2 group 3 for Office A’s Phones subnet (VLAN 20). Make DSW-A2 the Active router by increasing its priority to 5 above the default, and enable preemption on DSW-A2.</h4>
+<h4>Step 14. Configure HSRPv2 group 3 for Office A’s Phones subnet (VLAN 20). </h4>
+ Make DSW-A2 the Active router by increasing its priority to 5 above the default, and enable preemption on DSW-A2.<br/>
 
 - <b>Subnet: 10.2.0.0/24</b> 
 - <b>VIP: 10.2.0.1</b>
@@ -813,7 +816,8 @@ standby 3 ip 10.2.0.1
 ```
 <p align="center">
 <img src="https://i.imgur.com/ufOBlry.png" height="80%" width="80%" alt="v20a1"/>
-</p><br/>
+</p>
+<br/>
 
 DSW-A2:
    ```
@@ -825,12 +829,14 @@ standby 3 priority 105
 standby 3 preempt
 ```
 <p align="center">
-<img src="https://i.imgur.com/ImSobvT.png" height="80%" width="80%" alt="v20a1"/>
-</p><br/>
-These configurations perform the same function but with updated IP addresses making DSW-A2 the Active router and DSW-A1 the standby router. This is the first example of how HSRPv2 can provide load balancing. The Phones subnet will prioritize sending traffic via DSW-A2 instead of DSW-A1 like the management and pcs subnet.
+<img src="https://i.imgur.com/ImSobvT.png" height="80%" width="80%" alt="v20a2"/>
+</p>
+<br/>
+<p align="left">These configurations perform the same function but with updated IP addresses, making DSW-A2 the active router and DSW-A1 the standby router. This is an example of how HSRPv2 can provide load balancing. The phones subnet will prioritize sending traffic via DSW-A2 instead of DSW-A1, unlike the management and PCs subnets.</p>
 <br/>
 <br/>
-<h4>Step 15. Configure HSRPv2 group 4 for Office A’s Wi-Fi subnet (VLAN 40). Make DSW-A2 the Active router by increasing its priority to 5 above the default, and enable preemption on DSW-A2.</h4>
+<h4>Step 15. Configure HSRPv2 group 4 for Office A’s Wi-Fi subnet (VLAN 40). </h4>
+ Make DSW-A2 the Active router by increasing its priority to 5 above the default, and enable preemption on DSW-A2.<br/>
 
 - <b>Subnet: 10.6.0.0/24</b>
 - <b>VIP: 10.6.0.1  </b>
@@ -846,7 +852,7 @@ standby 4 ip 10.6.0.1
 
 ```
 <p align="center">
-<img src="https://i.imgur.com/G6O3f7F.png" height="80%" width="80%" alt="v20a1"/>
+<img src="https://i.imgur.com/G6O3f7F.png" height="80%" width="80%" alt="v40a1"/>
 </p><br/>
 
 DSW-A2:
@@ -859,12 +865,13 @@ standby 4 priority 105
 standby 4 preempt
 ```
 <p align="center">
-<img src="https://i.imgur.com/iCK2dFA.png" height="80%" width="80%" alt="v20a1"/>
+<img src="https://i.imgur.com/iCK2dFA.png" height="80%" width="80%" alt="v40a2"/>
 </p><br/>
-Wi-Fi traffic (VLAN 40) will utilize DSW-A2 as the primary router, and DSW-A1 as the standby router. We can also see the Wi-Fi subnet will allow 244 hosts because of the /24 subnet mask. While in the previous configurations, the VLANs would only allow 14 hosts per subnet because of the /28 subnet mask. I hope this shows how HSRP provides redundancy, fail-over, and load balancing which are all good things to build into your network. Networks are expected to run 24/7, and building redundancy into the network is how to do so. We are done configuring HSRP for Office A.
+<p align="left">Wi-Fi traffic (VLAN 40) will utilize DSW-A2 as the primary router and DSW-A1 as the standby router. We can also see that the Wi-Fi subnet will support 254 hosts due to the /24 subnet mask. In contrast, the previous configurations with a /28 subnet mask only allow for 14 hosts per subnet. This demonstrates how HSRP provides redundancy, failover, and load balancing—essential features for a reliable network. Networks are expected to run 24/7, and incorporating redundancy is crucial to achieve this. We have completed the HSRP configuration for Office A.</p>
 <br/>
 <br/>
-<h4>Step 16: Configure HSRPv2 group 1 for Office B’s Management subnet (VLAN 99). Make DSW-B1 the Active router by increasing its priority to 5 above the default, and enable preemption on DSW-B1.</h4>
+<h4>Step 16: Configure HSRPv2 group 1 for Office B’s Management subnet (VLAN 99). </h4>
+ Make DSW-B1 the Active router by increasing its priority to 5 above the default, and enable preemption on DSW-B1.<br/>
 
 - <b>Subnet: 10.0.0.16/28</b>
 - <b>VIP: 10.0.0.17</b>
@@ -882,7 +889,7 @@ standby 1 priority 105
 standby 1 preempt
 ```
 <p align="center">
-<img src="https://i.imgur.com/B28PcDG.png" height="80%" width="80%" alt="v20a1"/>
+<img src="https://i.imgur.com/B28PcDG.png" height="80%" width="80%" alt="v99a1"/>
 </p><br/>
 
 DSW-B2:
@@ -893,12 +900,13 @@ standby version 2
 standby 1 ip 10.0.0.17
 ```
 <p align="center">
-<img src="https://i.imgur.com/xtX7W5x.png" height="80%" width="80%" alt="v20a1"/>
+<img src="https://i.imgur.com/xtX7W5x.png" height="80%" width="80%" alt="v99a2"/>
 </p><br/>
-These configurations are similar to step 11 but in the Office B network. DSW-B1 Active, DSW-B2 standby for the Management VLAN
+<p align="left">These configurations are similar to step 11 but in the Office B network. DSW-B1 Active, DSW-B2 standby for the Management VLAN</p>
 <br/>
 <br/>
-<h4>Step 17. Configure HSRPv2 group 2 for Office B’s PCs subnet (VLAN 10). Make DSW-B1 the active router by increasing its priority to 5 above the default, and enable preemption on DSW-B1.</h4>
+<h4>Step 17. Configure HSRPv2 group 2 for Office B’s PCs subnet (VLAN 10). </h4>
+ Make DSW-B1 the active router by increasing its priority to 5 above the default, and enable preemption on DSW-B1.<br/>
 
 - <b>Subnet: 10.3.0.0/24</b>
 - <b>VIP: 10.3.0.1</b>
@@ -916,7 +924,7 @@ standby 2 priority 105
 standby 2 preempt
 ```
 <p align="center">
-<img src="https://i.imgur.com/spcqYvd.png" height="80%" width="80%" alt="v20a1"/>
+<img src="https://i.imgur.com/spcqYvd.png" height="80%" width="80%" alt="v10b1"/>
 </p><br/>
 
 DSW-B2:
@@ -926,10 +934,11 @@ ip address 10.3.0.3 255.255.255.0
 standby version 2
 standby 2 ip 10.3.0.1
 ```
-These are the same configurations as step 13, but in the 10.3.0.0 subnet, allowing 244 hosts in Office B. DSW-B1 is the active router and DSW-B2 is standby router in the PCs subnet.
+<p align="left">These are the same configurations as step 13, but in the 10.3.0.0 subnet, allowing 244 hosts in Office B. DSW-B1 is the active router and DSW-B2 is the standby router in the PCs subnet.</p>
 <br/>
 <br/>
-<h4>Step 18. Configure HSRPv2 group 3 for Office B’s Phones subnet (VLAN 20). Make DSW-B2 the Active router by increasing its priority to 5 above the default, and enable preemption on DSW-B2.</h4>
+<h4>Step 18. Configure HSRPv2 group 3 for Office B’s Phones subnet (VLAN 20).</h4>
+ Make DSW-B2 the Active router by increasing its priority to 5 above the default, and enable preemption on DSW-B2.<br/>
 
 - <b>Subnet: 10.4.0.0/24</b>
 - <b>VIP: 10.4.0.1</b>
@@ -945,7 +954,7 @@ standby version 2
 standby 3  ip 10.4.0.1
 ```
 <p align="center">
-<img src="https://i.imgur.com/vAbl9pt.png" height="80%" width="80%" alt="v20a1"/>
+<img src="https://i.imgur.com/vAbl9pt.png" height="80%" width="80%" alt="v20b1"/>
 </p><br/>
 
 DSW-B2:
@@ -958,12 +967,13 @@ standby 3 priority 105
 standby 3 preempt
 ```
 <p align="center">
-<img src="https://i.imgur.com/ubUXDkr.png" height="80%" width="80%" alt="v20a1"/>
+<img src="https://i.imgur.com/ubUXDkr.png" height="80%" width="80%" alt="v20b2"/>
 </p><br/>
-Another example of load balancing. The Phones subnet will use DSW-B2 as the active router, and DSW-B1 as the standby router.
+<p align="left">Another example of load balancing. The Phones subnet will use DSW-B2 as the active router, and DSW-B1 as the standby router.</p>
 <br/>
 <br/>
-<h4>Step 19. Configure HSRPv2 group 4 for Office B’s Servers subnet (VLAN 30). Make DSW-B2 the Active router by increasing its priority to 5 above the default, and enable preemption on DSW-B2.</h4>
+<h4>Step 19. Configure HSRPv2 group 4 for Office B’s Servers subnet (VLAN 30). </h4>
+ Make DSW-B2 the Active router by increasing its priority to 5 above the default, and enable preemption on DSW-B2.<br/>
 
 - <b>Subnet: 10.5.0.0/24</b>
 - <b>VIP: 10.5.0.1</b>
@@ -979,7 +989,7 @@ standby version 2
 standby 4  ip 10.5.0.1
 ```
 <p align="center">
-<img src="https://i.imgur.com/e57pk7R.png" height="80%" width="80%" alt="v20a1"/>
+<img src="https://i.imgur.com/e57pk7R.png" height="80%" width="80%" alt="v30b1"/>
 </p><br/>
 
 DSW-B2:
@@ -992,21 +1002,24 @@ standby 4 priority 105
 standby 4 preempt
 ```
 <p align="center">
-<img src="https://i.imgur.com/DTmnJui.png" height="80%" width="80%" alt="v20a1"/>
+<img src="https://i.imgur.com/DTmnJui.png" height="80%" width="80%" alt="v30b1"/>
 </p><br/>
-That`s it for configuring HSRPv2 in Office B. The command `logging synchronous` command entered earlier is very helpful for this stage. If you mix up the VLAN ip address and the VIp you will get tons of Syslog message indicating misconfigurations. If you get those syslog errors, hit the up arrow to repeat the last command but put `no` at the beginning of the line to undo the last command. Typos will certainly create Syslog messages during HSRP configurations. Configure the HSRP Standby Router for each VLAN with an STP priority one increment above the lowest priority.
+<p align="left">That’s it for configuring HSRPv2 in Office B. The `logging synchronous` command entered earlier is very helpful at this stage. If you mix up the VLAN IP address and the VIP, you will receive numerous Syslog messages indicating misconfigurations. If you encounter these Syslog errors, use the up arrow to repeat the last command, but add `no` at the beginning of the line to undo the last command. Typos can create Syslog messages during HSRP configuration. Configure the HSRP standby router for each VLAN with an STP priority one increment above the lowest priority.</p>
 <br/>
 <br/>
 <h3>Part 4 - Rapid Spanning Tree Protocol</h3>
-<h4>Step 1: Configure Rapid PVST+ on all Access and Distribution switches. Configure Rapid PVST+ on all Access and Distribution switches. Configure Rapid PVST+ on all Access and Distribution switches. Ensure that the Root Bridge for each VLAN aligns with the HSRP Active router by configuring the lowest possible STP priority.</h4>
-
+<h4>Step 1: Configure Rapid PVST+ on all Access and Distribution switches. </h4>
+ Configure Rapid PVST+ on all Access and Distribution switches. <br/>
+ Configure Rapid PVST+ on all Access and Distribution switches. <br/>
+ Ensure that the Root Bridge for each VLAN aligns with the HSRP Active router by configuring the lowest possible STP priority.<br/>
+ 
    ```
 spanning-tree mode rapid-pvst
 ```
 <p align="center">
 <img src="https://i.imgur.com/ETI9pf2.png" height="80%" width="80%" alt="v20a1"/>
 </p><br/>
-This command needs to be entered on each Access and Distribution Switch: ASW-A1, ASW-A2, ASW-A3, ASW-B1, ASW-B2, ASW-B3, DSW-A1, DSW-A2, DSW-B1 and DSW-B2. This enables Rapid Per VLAN Spanning Treet (RPVST+). Rapid PVST+ is a Cisco improvement over Rapid Spanning Tree. Spanning tree protocols intend to prevent Layer 2 Broadcast storms by blocking redundancy ports. Spanning Tree reduces network traffic, to keep networks up and running by eliminating unneeded network traffic. Rapid PVST+ improves on RSTP, by creating individual spanning trees for each VLAN, allowing for more granular control and allows for traffic load balancing by utilizing different paths for different VLANs.
+<p align="left">This command needs to be entered on each Access and Distribution Switch: ASW-A1, ASW-A2, ASW-A3, ASW-B1, ASW-B2, ASW-B3, DSW-A1, DSW-A2, DSW-B1 and DSW-B2. This enables Rapid Per VLAN Spanning Treet (RPVST+). Rapid PVST+ is a Cisco improvement over Rapid Spanning Tree. Spanning tree protocols intend to prevent Layer 2 Broadcast storms by blocking redundancy ports. Spanning Tree reduces network traffic, to keep networks up and running by eliminating unneeded network traffic. Rapid PVST+ improves on RSTP, by creating individual spanning trees for each VLAN, allowing for more granular control and allows for traffic load balancing by utilizing different paths for different VLANs.</p>
 
 DSW-A1
    ```
