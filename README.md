@@ -7,7 +7,7 @@
   - <b>Advanced Features: EtherChannel, DHCP, DNS, NAT, SSH, security features.</b>
   - <b>Wireless Configurations: Completed via Cisco GUI.</b>
 
-This capstone project is designed to showcase comprehensive knowledge of all CCNA topics. The project was developed by Jeremy of JeremysITLab.
+This capstone project is designed to showcase comprehensive knowledge of all CCNA topics. This project was developed by Jeremy of JeremysITLab.
   
 <br/>
 <h2>Utilities Used</h2>
